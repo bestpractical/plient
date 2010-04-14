@@ -7,9 +7,8 @@ sub method { $method{ $_[-1] } } # in case people call with ->
 
 
 sub init {
-    return unless $HTTPLite && $HTTPLite_config;
     eval { require 'HTTP::Lite' } or return;
-    @protocol{HTTP}   = ();
+    undef $protocol{HTTP};
     $method{http_get} = sub {
         my ( $uri, $args ) = @_;
 
