@@ -1,0 +1,48 @@
+package Plient::Protocol::File;
+
+use warnings;
+use strict;
+use Carp;
+use base 'Plient::Protocol';
+
+sub prefix { 'file' }
+sub methods { qw/get/ }
+
+sub get {
+    my ( $file, $args ) = @_;
+    $file =~ s!file://!!;
+    open my $fh, '<', $file or warn "failed to open $file: $!" && return;
+    local $/;
+    <$fh>;
+}
+
+1;
+
+__END__
+
+=head1 NAME
+
+Plient::Protocol::File - 
+
+
+=head1 SYNOPSIS
+
+    use Plient::Protocol::File;
+
+=head1 DESCRIPTION
+
+
+=head1 INTERFACE
+
+=head1 AUTHOR
+
+sunnavy  C<< <sunnavy@bestpractical.com> >>
+
+
+=head1 LICENCE AND COPYRIGHT
+
+Copyright 2010 Best Practical Solutions.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
