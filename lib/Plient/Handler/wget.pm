@@ -4,20 +4,14 @@ use warnings;
 
 use File::Which 'which';
 
-my ( $wget, $wget_config, %protocol, %method );
+my ( $wget, %protocol, %method );
 sub method { $method{ $_[-1] } }
+#XXX TODO get the real protocols wget supports
+@protocol{qw/HTTP HTTPS/} = ();
 
 sub init {
     $wget        = $ENV{PLIENT_WGET}        || which('wget');
-    $wget_config = $ENV{PLIENT_WGET_CONFIG} || which('wget-config');
-    return unless $wget && $wget_config;
-    if ( my $out = `$wget_config --protocols` ) {
-        @protocol{ split /\r?\n/, $out } = ();
-    }
-    else {
-        warn $!;
-        return;
-    }
+    return unless $wget;
 
     if ( exists $protocol{HTTP} ) {
         $method{http_get} = sub {
@@ -27,10 +21,15 @@ sub init {
                 <$fh>;
             }
             else {
-                warn "failed to wget $uri: $!";
+                warn "failed to get $uri with wget: $!";
                 return;
             }
         };
+    }
+
+    if ( exists $protocol{HTTPS} ) {
+        # have you seen https is available while http is not?
+        $method{https_get} = $method{http_get};
     }
 }
 

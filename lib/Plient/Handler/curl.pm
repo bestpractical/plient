@@ -27,10 +27,15 @@ sub init {
                 <$fh>;
             }
             else {
-                warn "failed to curl $uri: $!";
+                warn "failed to get $uri with curl: $!";
                 return;
             }
         };
+    }
+
+    if ( exists $protocol{HTTPS} ) {
+        # have you seen https is available while http is not?
+        $method{https_get} = $method{http_get};
     }
 }
 
