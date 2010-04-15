@@ -25,6 +25,7 @@ sub init {
         }
     };
 
+    return 1;
 }
 
 init();

@@ -34,6 +34,7 @@ sub init {
         # have you seen https is available while http is not?
         $method{https_get} = $method{http_get};
     }
+    return 1;
 }
 
 init();
