@@ -2,12 +2,14 @@ package Plient::Handler::curl;
 use strict;
 use warnings;
 
+use Plient::Util 'which';
+
 my ( $curl, $curl_config, %protocol, %method );
 sub method { $method{ $_[-1] } } # in case people call with ->
-use Config;
+
 sub init {
-    $curl        = $ENV{PLIENT_CURL}        || 'curl' . $Config{_exe};
-    $curl_config = $ENV{PLIENT_CURL_CONFIG} || 'curl-config' . $Config{_exe};
+    $curl        = $ENV{PLIENT_CURL}        || which('curl');
+    $curl_config = $ENV{PLIENT_CURL_CONFIG} || which('curl-config');
     return unless $curl && $curl_config;
     if ( my $out = `$curl_config --protocols` ) {
         @protocol{ split /\r?\n/, $out } = ();

@@ -2,13 +2,15 @@ package Plient::Handler::wget;
 use strict;
 use warnings;
 
+use Plient::Util 'which';
+
 my ( $wget, %protocol, %method );
 sub method { $method{ $_[-1] } }
 #XXX TODO get the real protocols wget supports
 @protocol{qw/HTTP HTTPS/} = ();
-use Config;
+
 sub init {
-    $wget        = $ENV{PLIENT_WGET}        || 'wget' . $Config{_exe};
+    $wget        = $ENV{PLIENT_WGET}        || which('wget');
     return unless $wget;
 
     if ( exists $protocol{HTTP} ) {
