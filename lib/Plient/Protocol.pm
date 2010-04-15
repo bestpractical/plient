@@ -17,6 +17,7 @@ sub method {
 
     my $handler_method_name = $class->prefix . "_$method_name";
     for my $handler ( Plient->handlers() ) {
+        $handler->init if $handler->can('init');
         if ( my $method = $handler->method($handler_method_name) ) {
             return $method;
         }
