@@ -1,0 +1,31 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use Plient;
+use Getopt::Long;
+
+my %args;
+
+GetOptions( \%args, ) or die 'unknown option';
+
+my $USAGE =<<EOF;
+Usage:
+    # fetch a page:
+    plient http://cpan.org/
+    plient get http://cpan.org/
+
+Arguments:
+
+EOF
+
+my ( $method, @uri ) = @ARGV;
+if ( $method && $method =~ m{://} ) {
+    push @uri, $method;
+    $method = 'get';
+}
+
+use Plient;
+for my $uri ( @uri ) {
+    print plient( $method, $uri );
+}
+
