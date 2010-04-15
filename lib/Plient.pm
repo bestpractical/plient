@@ -60,10 +60,10 @@ sub dispatch {
 my @handlers;
 sub handlers {
     return @handlers if @handlers;
-    load_handlers();
+    find_handlers();
 }
 
-sub load_handlers {
+sub find_handlers {
     my @hd;
     for my $inc (@INC) {
         my $handler_dir = catdir( $inc, 'Plient', 'Handler' );
