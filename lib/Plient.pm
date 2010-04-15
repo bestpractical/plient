@@ -33,7 +33,7 @@ sub plient {
 }
 
 my %dispatch_map = (
-    'file://'  => 'Plient::Protocol::File',
+    'file:'    => 'Plient::Protocol::File',
     'http://'  => 'Plient::Protocol::HTTP',
     'https://' => 'Plient::Protocol::HTTPS',
 );
