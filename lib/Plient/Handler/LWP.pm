@@ -7,11 +7,11 @@ sub method { $method{ $_[-1] } } # in case people call with ->
 
 
 sub init {
-    eval { require 'LWP::UserAgent' } or return;
+    eval { require LWP::UserAgent } or return;
     
     undef $protocol{HTTP};
 
-    if ( eval { require 'Crypt::SSLeay' } ) {
+    if ( eval { require Crypt::SSLeay } ) {
         undef $protocol{HTTPS};
     }
 

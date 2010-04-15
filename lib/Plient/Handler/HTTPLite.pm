@@ -7,11 +7,10 @@ sub method { $method{ $_[-1] } } # in case people call with ->
 
 
 sub init {
-    eval { require 'HTTP::Lite' } or return;
+    eval { require HTTP::Lite } or return;
     undef $protocol{HTTP};
     $method{http_get} = sub {
         my ( $uri, $args ) = @_;
-
         my $http  = HTTP::Lite->new;
         my $res = $http->request($uri) || '';
         if ( $res == 200 || $res == 301 || $res == 302 ) {
