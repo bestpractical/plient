@@ -7,12 +7,11 @@ use Plient::Util 'which';
 
 my ( $wget, %protocol, %all_protocol, %method );
 
-%all_protocol =
-  map { $_ => undef } qw/http https ftp/;
 sub all_protocol { return \%all_protocol }
 
 #XXX TODO get the real protocols wget supports
-@protocol{qw/http https ftp/} = ();
+# too sad that there's no wget-config stuff
+@all_protocol{qw/http https ftp/} = ();
 
 sub protocol { return \%protocol }
 sub method { return \%method }
@@ -22,25 +21,20 @@ sub init {
     return if $inited;
     $inited = 1;
 
-    $wget        = $ENV{PLIENT_WGET}        || which('wget');
+    $wget = $ENV{PLIENT_WGET} || which('wget');
     return unless $wget;
-
-    if ( exists $protocol{http} ) {
-        $method{http_get} = sub {
-            my ( $uri, $args ) = @_;
-            if ( open my $fh, "$wget -q -O - $uri |" ) {
-                local $/;
-                <$fh>;
-            }
-            else {
-                warn "failed to get $uri with wget: $!";
-                return;
-            }
-        };
-    }
-
-    # have you seen https is available while http is not?
-    $method{https_get} = $method{http_get} if exists $protocol{https};
+    @protocol{qw/http https ftp/}     = ();
+    $method{http_get} = $method{https_get} = sub {
+        my ( $uri, $args ) = @_;
+        if ( open my $fh, "$wget -q -O - $uri |" ) {
+            local $/;
+            <$fh>;
+        }
+        else {
+            warn "failed to get $uri with wget: $!";
+            return;
+        }
+    };
     return 1;
 }
 
