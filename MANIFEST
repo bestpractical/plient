@@ -1,3 +1,4 @@
+bin/plient
 Changes
 ignore.txt
 inc/Module/AutoInstall.pm
@@ -12,6 +13,7 @@ inc/Module/Install/Metadata.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
 lib/Plient.pm
+lib/Plient/Handler.pm
 lib/Plient/Handler/curl.pm
 lib/Plient/Handler/HTTPLite.pm
 lib/Plient/Handler/LWP.pm
@@ -20,6 +22,7 @@ lib/Plient/Protocol.pm
 lib/Plient/Protocol/File.pm
 lib/Plient/Protocol/HTTP.pm
 lib/Plient/Protocol/HTTPS.pm
+lib/Plient/Util.pm
 Makefile.PL
 MANIFEST
 META.yml
