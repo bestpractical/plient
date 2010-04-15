@@ -2,8 +2,14 @@ package Plient::Handler::LWP;
 use strict;
 use warnings;
 
-my ( $LWP, %protocol, %method );
-sub method { $method{ $_[-1] } } # in case people call with ->
+use base 'Plient::Handler';
+my ( $LWP, %all_protocol, %protocol, %method );
+
+%all_protocol = map { $_ => undef }
+  qw/http https ftp news gopher file mailto cpan data ldap nntp/;
+sub all_protocol { return \%all_protocol }
+sub protocol { return \%protocol }
+sub method { return \%method }
 
 my $inited;
 sub init {

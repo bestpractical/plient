@@ -47,7 +47,7 @@ sub dispatch {
         if ( $uri =~ m{^\Q$prefix} ) {
             my $class = $dispatch_map{$prefix};
             eval "require $class" or warn "failed to require $class" && return;
-            if ( my $sub = $class->can($method) || $class->method($method) ) {
+            if ( my $sub = $class->can($method) || $class->support_method($method) ) {
                 return sub { $sub->( $uri, @_ ) };
             }
             else {
@@ -57,10 +57,35 @@ sub dispatch {
     }
 }
 
-my @handlers;
+my @all_handlers;
+sub all_handlers {
+    return @all_handlers if @all_handlers;
+    @all_handlers = find_handlers();
+}
+
 sub handlers {
-    return @handlers if @handlers;
-    find_handlers();
+    shift if $_[0] && $_[0] eq __PACKAGE__;
+    if ( my $protocol = lc shift ) {
+        my %map =
+          map { $_ => 1 }
+          grep { $_->may_support_protocol($protocol) } all_handlers();
+        my @handlers;
+        my $preference = handler_preference($protocol);
+        if ($preference) {
+            @handlers = map {  /::/ ? $_ : "Plient::Handler::$_" }
+              grep {
+                $_ =~ /::/
+                  ? delete $map{$_}
+                  : delete $map{"Plient::Handler::$_"}
+              } @$preference;
+        }
+        push @handlers, keys %map;
+        return @handlers;
+    }
+    else {
+        # fallback to return all the handlers
+        return @all_handlers;
+    }
 }
 
 sub find_handlers {
@@ -80,8 +105,33 @@ sub find_handlers {
     for my $hd (@hd) {
         eval "require $hd" or warn "failed to require $hd";
     }
-    @handlers = @hd;
+
+    @hd;
 }
+
+my %handler_preference = (
+    http  => [qw/curl wget HTTPLite LWP/],
+    https => [qw/curl wget LWP/],
+);
+
+sub handler_preference {
+    shift if $_[0] && $_[0] eq __PACKAGE__;
+    my ( $protocol, $handlers ) = @_;
+    $protocol = lc $protocol;
+    if ($handlers) {
+        if ( ref $handlers eq 'ARRAY' ) {
+            return $handler_preference{ $protocol } = $handlers;
+        }
+        else {
+            warn "handlers shold be an arrayref";
+            return;
+        }
+    }
+    else {
+        return $handler_preference{ $protocol };
+    }
+}
+
 
 1;
 

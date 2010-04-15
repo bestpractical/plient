@@ -2,8 +2,13 @@ package Plient::Handler::HTTPLite;
 use strict;
 use warnings;
 
-my ( $HTTPLite, %protocol, %method );
-sub method { $method{ $_[-1] } } # in case people call with ->
+use base 'Plient::Handler';
+my ( $HTTPLite, %all_protocol, %protocol, %method );
+
+%all_protocol = ( http => undef );
+sub all_protocol { return \%all_protocol }
+sub protocol { return \%protocol }
+sub method { return \%method }
 
 my $inited;
 sub init {

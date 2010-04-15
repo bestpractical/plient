@@ -2,12 +2,20 @@ package Plient::Handler::wget;
 use strict;
 use warnings;
 
+use base 'Plient::Handler';
 use Plient::Util 'which';
 
-my ( $wget, %protocol, %method );
-sub method { $method{ $_[-1] } }
+my ( $wget, %protocol, %all_protocol, %method );
+
+%all_protocol =
+  map { $_ => undef } qw/http https ftp/;
+sub all_protocol { return \%all_protocol }
+
 #XXX TODO get the real protocols wget supports
-@protocol{qw/http https/} = ();
+@protocol{qw/http https ftp/} = ();
+
+sub protocol { return \%protocol }
+sub method { return \%method }
 
 my $inited;
 sub init {

@@ -7,7 +7,7 @@ use Carp;
 sub prefix { warn "needs subclass prefix"; '' }
 sub methods { warn "needs subclass methods"; '' }
 
-sub method {
+sub support_method {
     # trans $uri and $args here to let handlers to decide to pass or not
     my ( $class, $method_name ) = @_;
 
@@ -16,9 +16,9 @@ sub method {
     }
 
     my $handler_method_name = $class->prefix . "_$method_name";
-    for my $handler ( Plient->handlers() ) {
+    for my $handler ( Plient->handlers( $class->prefix ) ) {
         $handler->init if $handler->can('init');
-        if ( my $method = $handler->method($handler_method_name) ) {
+        if ( my $method = $handler->support_method($handler_method_name) ) {
             return $method;
         }
     }

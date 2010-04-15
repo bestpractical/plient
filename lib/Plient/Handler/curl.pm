@@ -2,10 +2,16 @@ package Plient::Handler::curl;
 use strict;
 use warnings;
 
+use base 'Plient::Handler';
 use Plient::Util 'which';
 
-my ( $curl, $curl_config, %protocol, %method );
-sub method { $method{ $_[-1] } } # in case people call with ->
+my ( $curl, $curl_config, %all_protocol, %protocol, %method );
+
+%all_protocol =
+  map { $_ => undef } qw/http https ftp ftps file telnet ldap dict tftp/;
+sub all_protocol { return \%all_protocol }
+sub protocol { return \%protocol }
+sub method { return \%method }
 
 my $inited;
 sub init {
