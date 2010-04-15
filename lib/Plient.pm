@@ -114,6 +114,13 @@ my %handler_preference = (
     http  => [qw/curl wget HTTPLite LWP/],
     https => [qw/curl wget LWP/],
 );
+if ( my $env = $ENV{PLIENT_HANDLER_PREFERENCE} ) {
+    my %entry = map { split /:/, $_, 2 } split /;/, $env;
+    %entry = map { $_ => [ split /,/, $entry{$_} || '' ] } keys %entry;
+    for my $p ( keys %entry ) {
+        $handler_preference{$p} = $entry{$p};
+    }
+}
 
 sub handler_preference {
     shift if $_[0] && $_[0] eq __PACKAGE__;
