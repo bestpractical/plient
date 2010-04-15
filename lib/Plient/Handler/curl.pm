@@ -2,14 +2,12 @@ package Plient::Handler::curl;
 use strict;
 use warnings;
 
-use File::Which 'which';
-
 my ( $curl, $curl_config, %protocol, %method );
 sub method { $method{ $_[-1] } } # in case people call with ->
-
+use Config;
 sub init {
-    $curl        = $ENV{PLIENT_CURL}        || which('curl');
-    $curl_config = $ENV{PLIENT_CURL_CONFIG} || which('curl-config');
+    $curl        = $ENV{PLIENT_CURL}        || 'curl' . $Config{_exe};
+    $curl_config = $ENV{PLIENT_CURL_CONFIG} || 'curl-config' . $Config{_exe};
     return unless $curl && $curl_config;
     if ( my $out = `$curl_config --protocols` ) {
         @protocol{ split /\r?\n/, $out } = ();
@@ -34,6 +32,7 @@ sub init {
     }
 
     if ( exists $protocol{HTTPS} ) {
+
         # have you seen https is available while http is not?
         $method{https_get} = $method{http_get};
     }
