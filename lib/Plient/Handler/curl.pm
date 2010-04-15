@@ -31,11 +31,8 @@ sub init {
         };
     }
 
-    if ( exists $protocol{HTTPS} ) {
-
-        # have you seen https is available while http is not?
-        $method{https_get} = $method{http_get};
-    }
+    # have you seen https is available while http is not?
+    $method{https_get} = $method{http_get} if exists $protocol{HTTPS};
 }
 
 init();
