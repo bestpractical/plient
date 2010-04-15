@@ -21,7 +21,7 @@ sub method {
             return $method;
         }
     }
-    warn "$handler_method_name is not supported in all the available handlers";
+    warn "$handler_method_name is not supported yet";
     return;
 }
 
