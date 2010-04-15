@@ -20,7 +20,7 @@ sub init {
     if ( exists $protocol{HTTP} ) {
         $method{http_get} = sub {
             my ( $uri, $args ) = @_;
-            if ( open my $fh, "$wget -q -L $uri |" ) {
+            if ( open my $fh, "$wget -q -O - $uri |" ) {
                 local $/;
                 <$fh>;
             }
