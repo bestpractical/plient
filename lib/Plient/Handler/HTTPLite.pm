@@ -10,7 +10,7 @@ sub init {
     return if $inited;
     $inited = 1;
     eval { require HTTP::Lite } or return;
-    undef $protocol{HTTP};
+    undef $protocol{http};
     $method{http_get} = sub {
         my ( $uri, $args ) = @_;
         my $http  = HTTP::Lite->new;

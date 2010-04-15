@@ -7,7 +7,7 @@ use Plient::Util 'which';
 my ( $wget, %protocol, %method );
 sub method { $method{ $_[-1] } }
 #XXX TODO get the real protocols wget supports
-@protocol{qw/HTTP HTTPS/} = ();
+@protocol{qw/http https/} = ();
 
 my $inited;
 sub init {
@@ -17,7 +17,7 @@ sub init {
     $wget        = $ENV{PLIENT_WGET}        || which('wget');
     return unless $wget;
 
-    if ( exists $protocol{HTTP} ) {
+    if ( exists $protocol{http} ) {
         $method{http_get} = sub {
             my ( $uri, $args ) = @_;
             if ( open my $fh, "$wget -q -O - $uri |" ) {
@@ -32,7 +32,7 @@ sub init {
     }
 
     # have you seen https is available while http is not?
-    $method{https_get} = $method{http_get} if exists $protocol{HTTPS};
+    $method{https_get} = $method{http_get} if exists $protocol{https};
     return 1;
 }
 

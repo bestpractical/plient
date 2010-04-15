@@ -11,10 +11,10 @@ sub init {
     $inited = 1;
     eval { require LWP::UserAgent } or return;
     
-    undef $protocol{HTTP};
+    undef $protocol{http};
 
     if ( eval { require Crypt::SSLeay } ) {
-        undef $protocol{HTTPS};
+        undef $protocol{https};
     }
 
     $method{http_get} = sub {
@@ -32,7 +32,7 @@ sub init {
         }
     };
 
-    if ( exists $protocol{HTTPS} ) {
+    if ( exists $protocol{https} ) {
         # have you seen https is available while http is not?
         $method{https_get} = $method{http_get};
     }

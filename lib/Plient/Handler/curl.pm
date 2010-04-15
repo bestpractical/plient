@@ -15,14 +15,14 @@ sub init {
     $curl_config = $ENV{PLIENT_CURL_CONFIG} || which('curl-config');
     return unless $curl && $curl_config;
     if ( my $out = `$curl_config --protocols` ) {
-        @protocol{ split /\r?\n/, $out } = ();
+        @protocol{ map { lc } split /\r?\n/, $out } = ();
     }
     else {
         warn $!;
         return;
     }
 
-    if ( exists $protocol{HTTP} ) {
+    if ( exists $protocol{http} ) {
         $method{http_get} = sub {
             my ( $uri, $args ) = @_;
             if ( open my $fh, "$curl -s -L $uri |" ) {
@@ -37,7 +37,7 @@ sub init {
     }
 
     # have you seen https is available while http is not?
-    $method{https_get} = $method{http_get} if exists $protocol{HTTPS};
+    $method{https_get} = $method{http_get} if exists $protocol{https};
     return 1;
 }
 
