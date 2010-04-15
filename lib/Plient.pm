@@ -15,7 +15,13 @@ sub plient {
         return;
     }
     $args ||= {};
+    return unless $uri;
     $uri =~ s/^\s+//;
+
+    # XXX TODO move this $uri tweak thing to HTTP part
+    # http://localhost:5000 => http://localhost:5000/
+    $uri .= '/' if $uri =~ m{^https?://[^/]+$};
+
     my $sub = dispatch( $method, $uri );
     if ( $sub ) {
         $sub->( $args );
