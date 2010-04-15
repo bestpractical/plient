@@ -7,7 +7,10 @@ use Plient::Util 'which';
 my ( $curl, $curl_config, %protocol, %method );
 sub method { $method{ $_[-1] } } # in case people call with ->
 
+my $inited;
 sub init {
+    return if $inited;
+    $inited = 1;
     $curl        = $ENV{PLIENT_CURL}        || which('curl');
     $curl_config = $ENV{PLIENT_CURL_CONFIG} || which('curl-config');
     return unless $curl && $curl_config;
@@ -37,8 +40,6 @@ sub init {
     $method{https_get} = $method{http_get} if exists $protocol{HTTPS};
     return 1;
 }
-
-init();
 
 1;
 

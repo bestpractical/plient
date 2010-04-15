@@ -5,8 +5,10 @@ use warnings;
 my ( $HTTPLite, %protocol, %method );
 sub method { $method{ $_[-1] } } # in case people call with ->
 
-
+my $inited;
 sub init {
+    return if $inited;
+    $inited = 1;
     eval { require HTTP::Lite } or return;
     undef $protocol{HTTP};
     $method{http_get} = sub {
@@ -26,8 +28,6 @@ sub init {
 
     return 1;
 }
-
-init();
 
 1;
 

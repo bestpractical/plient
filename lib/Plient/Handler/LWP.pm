@@ -5,8 +5,10 @@ use warnings;
 my ( $LWP, %protocol, %method );
 sub method { $method{ $_[-1] } } # in case people call with ->
 
-
+my $inited;
 sub init {
+    return if $inited;
+    $inited = 1;
     eval { require LWP::UserAgent } or return;
     
     undef $protocol{HTTP};
@@ -36,8 +38,6 @@ sub init {
     }
     return 1;
 }
-
-init();
 
 1;
 

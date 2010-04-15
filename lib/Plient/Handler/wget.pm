@@ -9,7 +9,11 @@ sub method { $method{ $_[-1] } }
 #XXX TODO get the real protocols wget supports
 @protocol{qw/HTTP HTTPS/} = ();
 
+my $inited;
 sub init {
+    return if $inited;
+    $inited = 1;
+
     $wget        = $ENV{PLIENT_WGET}        || which('wget');
     return unless $wget;
 
@@ -31,8 +35,6 @@ sub init {
     $method{https_get} = $method{http_get} if exists $protocol{HTTPS};
     return 1;
 }
-
-init();
 
 1;
 
