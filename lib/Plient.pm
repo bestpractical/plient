@@ -72,7 +72,8 @@ sub handlers {
         my @handlers;
         my $preference = handler_preference($protocol);
         if ($preference) {
-            @handlers = map {  /::/ ? $_ : "Plient::Handler::$_" }
+            @handlers =
+              map { /^Plient::Handler::/ ? $_ : "Plient::Handler::$_" }
               grep {
                 $_ =~ /::/
                   ? delete $map{$_}
