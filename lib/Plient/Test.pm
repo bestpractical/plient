@@ -4,6 +4,7 @@ use warnings;
 use strict;
 use Carp;
 use Plient::Util 'which';
+use Time::HiRes 'usleep';
 use File::Spec::Functions;
 use FindBin '$Bin';
 
@@ -20,7 +21,7 @@ sub start_http_server {
     my $pid = fork;
     if ( defined $pid ) {
         if ($pid) {
-            sleep 1; # give plackup sometime to run ;)
+            usleep 100_000; # give plackup sometime to run ;)
             push @pids, $pid;
             return "http://localhost:$port";
         }
