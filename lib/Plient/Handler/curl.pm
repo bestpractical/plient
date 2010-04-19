@@ -40,10 +40,9 @@ sub init {
                 return;
             }
         };
+        $method{https_get} = $method{http_get} if exists $protocol{https};
     }
 
-    # have you seen https is available while http is not?
-    $method{https_get} = $method{http_get} if exists $protocol{https};
     return 1;
 }
 
