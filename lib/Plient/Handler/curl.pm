@@ -41,6 +41,40 @@ sub init {
             }
         };
         $method{https_get} = $method{http_get} if exists $protocol{https};
+
+        $method{http_post} = sub {
+            my ( $uri, $args ) = @_;
+            $args ||= {};
+
+            my $data = '';
+            if ( $args->{body} ) {
+                my %kv = %{$args->{body}};
+                for my $k ( keys %kv ) {
+                    if ( defined $kv{$k} ) {
+                        if ( ref $kv{$k} && ref $kv{$k} eq 'ARRAY' ) {
+                            for my $i ( @{ $kv{$k} } ) {
+                                $data .= " -d $k=$i";
+                            }
+                        }
+                        else {
+                            $data .= " -d $k=$kv{$k}";
+                        }
+                    }
+                    else {
+                        $data .= " -d $k=";
+                    }
+                }
+            }
+
+            if ( open my $fh, "$curl -s -L $uri $data |" ) {
+                local $/;
+                <$fh>;
+            }
+            else {
+                warn "failed to post $uri with curl: $!";
+                return;
+            }
+        };
     }
 
     return 1;
