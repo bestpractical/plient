@@ -3,18 +3,24 @@ package Plient::Test;
 use warnings;
 use strict;
 use Carp;
-use FindBin '$Bin';
-use base 'Exporter';
+use Plient::Util 'which';
 use File::Spec::Functions;
-our @EXPORT = qw/start_http_server stop_http_server/;
+use FindBin '$Bin';
+
+use base 'Exporter';
+our @EXPORT = qw/start_http_server/;
 my @pids;
+
 sub start_http_server {
+    my $plackup = which('plackup');
+    return unless $plackup;
+
     my $psgi = catfile( $Bin, 'app.psgi' );
     my $port = 5000 + int(rand(1000));
     my $pid = fork;
     if ( defined $pid ) {
         if ($pid) {
-            sleep 1;
+            sleep 1; # give plackup sometime to run ;)
             push @pids, $pid;
             return "http://localhost:$port";
         }
