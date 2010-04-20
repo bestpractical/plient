@@ -74,6 +74,17 @@ sub init {
                 return;
             }
         };
+        $method{http_head} = sub {
+            my ( $uri, $args ) = @_;
+            if ( open my $fh, "$curl -s -I -L $uri |" ) {
+                local $/;
+                <$fh>;
+            }
+            else {
+                warn "failed to get head of $uri with curl: $!";
+                return;
+            }
+        };
     }
 
     if ( exists $protocol{https} ) {

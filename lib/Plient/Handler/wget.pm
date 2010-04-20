@@ -78,6 +78,10 @@ sub init {
         }
     };
 
+    # actually, wget doesn't have an official head api, --spider
+    # does the similar job, but this behavior varies in different versions.
+    # let's not support head for wget for now
+
     if ( exists $protocol{https} ) {
         for my $m (qw/get post head put/) {
             $method{"https_$m"} = $method{"http_$m"}

@@ -55,6 +55,22 @@ sub init {
         }
     };
 
+    $method{http_head} = sub {
+        my ( $uri, $args ) = @_;
+
+        # XXX TODO tweak the new arguments
+        my $ua  = LWP::UserAgent->new;
+        my $res = $ua->head($uri);
+        # there is no official way to get the *origin* header output :/
+        if ( $res->is_success ) {
+            return $res->headers->as_string;
+        }
+        else {
+            warn "failed to get head of $uri with lwp: " . $res->status_line;
+            return;
+        }
+    };
+
     if ( exists $protocol{https} ) {
         # have you seen https is available while http is not?
         $method{https_get} = $method{http_get};
