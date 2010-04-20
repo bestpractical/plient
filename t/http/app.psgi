@@ -11,12 +11,25 @@ my $app = sub {
             return [ 200, [ 'Content-Type' => 'text/plain' ], ['hello'] ] 
         }
     }
-    if ( $req->method eq 'POST' ) {
+    elsif ( $req->method eq 'POST' ) {
         my $name = $req->body_parameters->get_all('name');
         if ( $req->path eq '/hello' ) {
             return [ 200, [ 'Content-Type' => 'text/plain' ], ["hello $name"] ]; 
         }
     }
+    elsif ( $req->method eq 'HEAD' ) {
+        if ( $req->path eq '/hello' ) {
+            return [
+                200,
+                [
+                    'Content-Type'     => 'text/plain',
+                    'Plient-Head-Path' => '/hello'
+                ],
+                []
+            ];
+        }
+    }
+
     [ 200, [], ['ok']];
 };
 
