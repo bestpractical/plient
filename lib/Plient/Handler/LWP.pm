@@ -38,6 +38,23 @@ sub init {
         }
     };
 
+    $method{http_post} = sub {
+        my ( $uri, $args ) = @_;
+
+        # XXX TODO tweak the new arguments
+        my $ua  = LWP::UserAgent->new;
+        my $res =
+          $ua->post( $uri,
+            $args->{body} ? ( content => $args->{body} ) : () );
+        if ( $res->is_success ) {
+            return $res->decoded_content;
+        }
+        else {
+            warn "failed to get $uri with lwp: " . $res->status_line;
+            return;
+        }
+    };
+
     if ( exists $protocol{https} ) {
         # have you seen https is available while http is not?
         $method{https_get} = $method{http_get};
