@@ -8,7 +8,7 @@ use_ok('Plient::Test');
 
 my $url = start_http_server();
 SKIP: {
-    skip 'no plackup available', 1 unless $url;
+    skip 'no plackup available', 4 unless $url;
     # to test each handler, set env PLIENT_HANDLER_PREFERENCE_ONLY to true
     for my $handler (qw/curl wget HTTPLite LWP/) {
         Plient->handler_preference( http => [$handler] );
