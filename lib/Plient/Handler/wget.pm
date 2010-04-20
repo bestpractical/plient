@@ -78,9 +78,35 @@ sub init {
         }
     };
 
-    # actually, wget doesn't have an official head api, --spider
-    # does the similar job, but this behavior varies in different versions.
-    # let's not support head for wget for now
+    $method{http_head} = sub {
+        my ( $uri, $args ) = @_;
+        # we can't use -q here, or some version may not show the header
+        if ( open my $fh, "$wget -S --spider $uri 2>&1 |" ) {
+            my $head = '';
+            my $flag;
+            while ( my $line = <$fh>) {
+                # yeah, the head output has 2 spaces as indents
+                if ( $line =~ m{^\s{2}HTTP} ) {
+                    $flag = 1;
+                }
+
+                if ($flag) {
+                    if ($line =~ s/^\s{2}(?=\S)//) {
+                        $head .= $line;
+                    }
+                    else {
+                        undef $flag;
+                        last;
+                    }
+                }
+            }
+            return $head;
+        }
+        else {
+            warn "failed to get head of $uri with wget: $!";
+            return;
+        }
+    };
 
     if ( exists $protocol{https} ) {
         for my $m (qw/get post head put/) {
