@@ -80,7 +80,7 @@ sub handlers {
                   : delete $map{"Plient::Handler::$_"}
               } @$preference;
         }
-        push @handlers, keys %map;
+        push @handlers, keys %map unless $ENV{PLIENT_HANDLER_PREFERENCE_ONLY};
         return @handlers;
     }
     else {
