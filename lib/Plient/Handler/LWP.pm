@@ -58,6 +58,7 @@ sub init {
     if ( exists $protocol{https} ) {
         # have you seen https is available while http is not?
         $method{https_get} = $method{http_get};
+        $method{https_post} = $method{http_post};
     }
     return 1;
 }
