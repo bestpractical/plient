@@ -40,7 +40,6 @@ sub init {
                 return;
             }
         };
-        $method{https_get} = $method{http_get} if exists $protocol{https};
 
         $method{http_post} = sub {
             my ( $uri, $args ) = @_;
@@ -77,6 +76,12 @@ sub init {
         };
     }
 
+    if ( exists $protocol{https} ) {
+        for my $m (qw/get post head put/) {
+            $method{"https_$m"} = $method{"http_$m"}
+              if exists $method{"http_$m"};
+        }
+    }
     return 1;
 }
 
