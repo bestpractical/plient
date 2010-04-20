@@ -78,7 +78,9 @@ sub init {
             my ( $uri, $args ) = @_;
             if ( open my $fh, "$curl -s -I -L $uri |" ) {
                 local $/;
-                <$fh>;
+                my $head = <$fh>;
+                $head =~ s/\r\n$//;
+                return $head;
             }
             else {
                 warn "failed to get head of $uri with curl: $!";
