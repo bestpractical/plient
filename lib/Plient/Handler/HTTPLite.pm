@@ -31,6 +31,22 @@ sub init {
         }
     };
 
+    $method{http_post} = sub {
+        my ( $uri, $args ) = @_;
+        my $http  = HTTP::Lite->new;
+        $http->prepare_post( $args->{body} ) if $args->{body};
+        my $res = $http->request($uri) || '';
+        if ( $res == 200 || $res == 301 || $res == 302 ) {
+
+            # XXX TODO handle redirect
+            return $http->body;
+        }
+        else {
+            warn "failed to post $uri with HTTP::Lite: "  . $res;
+            return;
+        }
+    };
+
     return 1;
 }
 
