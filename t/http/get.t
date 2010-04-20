@@ -12,6 +12,6 @@ SKIP: {
     # to test each handler, set env PLIENT_HANDLER_PREFERENCE_ONLY to true
     for my $handler (qw/curl wget HTTPLite LWP/) {
         Plient->handler_preference( http => [$handler] );
-        is( plient( GET => "$url/hello" ), 'hello', 'get /hello' );
+        is( plient( GET => "$url/hello" ), 'hello', "get /hello using $handler" );
     }
 }

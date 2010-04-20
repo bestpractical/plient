@@ -13,6 +13,6 @@ SKIP: {
     for my $handler (qw/curl wget HTTPLite LWP/) {
         Plient->handler_preference( http => [$handler] );
         is( plient( POST => "$url/hello", { body => { name => 'foo' } } ),
-            'hello foo', 'post /hello' );
+            'hello foo', "post /hello using $handler" );
     }
 }
