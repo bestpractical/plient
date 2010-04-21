@@ -8,17 +8,21 @@ sub prefix { warn "needs subclass prefix"; '' }
 sub methods { warn "needs subclass methods"; '' }
 
 sub support_method {
-    # trans $uri and $args here to let handlers to decide to pass or not
-    my ( $class, $method_name ) = @_;
+    # trans $args here to let handlers to decide to pass or not
+    my ( $class, $method_name, $args ) = @_;
+    $method_name = lc $method_name;
 
     if ( !grep { $method_name eq $_ } $class->methods ) {
         warn "$method_name for $class is not officially supported yet";
     }
 
+    return $class->can($method_name) if $class->can($method_name);
     my $handler_method_name = $class->prefix . "_$method_name";
     for my $handler ( Plient->handlers( $class->prefix ) ) {
         $handler->init if $handler->can('init');
-        if ( my $method = $handler->support_method($handler_method_name) ) {
+        if ( my $method =
+            $handler->support_method( $handler_method_name, $args ) )
+        {
             return $method;
         }
     }

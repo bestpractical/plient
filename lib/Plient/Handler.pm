@@ -23,6 +23,9 @@ sub support_protocol {
 sub support_method {
     my $class = shift;
     my $method = shift;
+    # TODO we should check args to do more serioud check
+    # e.g. proxy, auth, etc.
+    my $args = shift;
     $class->method->{ $method };
 }
 
