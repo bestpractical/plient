@@ -22,9 +22,9 @@ sub plient {
     # http://localhost:5000 => http://localhost:5000/
     $uri .= '/' if $uri =~ m{^https?://[^/]+$};
 
-    my $sub = dispatch( $method, $uri );
+    my $sub = dispatch( $method, $uri, $args );
     if ( $sub ) {
-        $sub->( $args );
+        $sub->();
     }
     else {
         warn "failed to $method on $uri"; 
@@ -39,7 +39,7 @@ my %dispatch_map = (
 );
 
 sub dispatch {
-    my ( $method, $uri ) = @_;
+    my ( $method, $uri, $args ) = @_;
     $method = lc $method;
     $method ||= 'get';    # people use get most of the time.
 
@@ -47,8 +47,8 @@ sub dispatch {
         if ( $uri =~ m{^\Q$prefix} ) {
             my $class = $dispatch_map{$prefix};
             eval "require $class" or warn "failed to require $class" && return;
-            if ( my $sub = $class->can($method) || $class->support_method($method) ) {
-                return sub { $sub->( $uri, @_ ) };
+            if ( my $sub = $class->support_method($method, $args) ) {
+                return sub { $sub->( $uri, $args ) };
             }
             else {
                 warn "unsupported $method";
