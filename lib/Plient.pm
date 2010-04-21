@@ -32,28 +32,34 @@ sub plient {
     }
 }
 
-my %dispatch_map = (
-    'file:'    => 'Plient::Protocol::File',
-    'http://'  => 'Plient::Protocol::HTTP',
-    'https://' => 'Plient::Protocol::HTTPS',
-);
 
 sub dispatch {
     my ( $method, $uri, $args ) = @_;
     $method = lc $method;
     $method ||= 'get';    # people use get most of the time.
 
-    for my $prefix ( keys %dispatch_map ) {
-        if ( $uri =~ m{^\Q$prefix} ) {
-            my $class = $dispatch_map{$prefix};
-            eval "require $class" or warn "failed to require $class" && return;
-            if ( my $sub = $class->support_method($method, $args) ) {
-                return sub { $sub->( $uri, $args ) };
-            }
-            else {
-                warn "unsupported $method";
-            }
-        }
+    my $class;
+    if ( $uri =~ /^file:/ ) {
+        require Plient::Protocol::File;
+        $class = 'Plient::Protocol::File';
+    }
+    elsif ( $uri =~ m{^http://} ) {
+        require Plient::Protocol::HTTP;
+        $class = 'Plient::Protocol::HTTP';
+    }
+    elsif ( $uri =~ m{^https://} ) {
+        require Plient::Protocol::HTTPS;
+        $class = 'Plient::Protocol::HTTPS';
+    }
+    else {
+        warn "unsupported protocol";
+    }
+
+    if ( my $sub = $class->support_method( $method, $args ) ) {
+        return sub { $sub->( $uri, $args ) };
+    }
+    else {
+        warn "unsupported $method";
     }
 }
 
