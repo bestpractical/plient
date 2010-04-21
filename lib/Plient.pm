@@ -74,6 +74,16 @@ sub _dispatch_protocol {
 }
 
 
+sub available {
+    shift if $_[0] && $_[0] eq __PACKAGE__;
+    my ( $protocol, $method, $args ) = @_;
+    return unless $protocol;
+    $method ||= 'get';
+    my $class = _dispatch_protocol(lc $protocol);
+    return unless $class;
+    return $class->support_method( $method, $args );
+}
+
 sub dispatch {
     my ( $method, $uri, $args ) = @_;
     $method = lc $method;
