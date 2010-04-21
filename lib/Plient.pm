@@ -52,6 +52,7 @@ sub dispatch {
     }
     else {
         warn "unsupported protocol";
+        return;
     }
 
     if ( my $sub = $class->support_method( $method, $args ) ) {
