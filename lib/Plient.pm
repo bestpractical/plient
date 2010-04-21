@@ -32,28 +32,54 @@ sub plient {
     }
 }
 
-sub dispatch {
-    my ( $method, $uri, $args ) = @_;
-    $method = lc $method;
-    $method ||= 'get';    # people use get most of the time.
+sub _extract_protocol {
+    shift if $_[0] && $_[0] eq __PACKAGE__;
+    my $uri = shift;
+    return unless $uri;
+    if ( $uri =~ /^http:/i ) {
+        return 'http';
+    }
+    elsif ( $uri =~ /^https:/i ) {
+        return 'https';
+    }
+    elsif ( $uri =~ /^file:/i ) {
+        return 'file';
+    }
+    else {
+        warn "unsupported $uri";
+        return;
+    }
+}
 
-    my $class;
-    if ( $uri =~ /^file:/ ) {
+sub _dispatch_protocol {
+    shift if $_[0] && $_[0] eq __PACKAGE__;
+    my $protocol = shift;
+    return unless $protocol;
+    if ( $protocol eq 'file' ) {
         require Plient::Protocol::File;
-        $class = 'Plient::Protocol::File';
+        return 'Plient::Protocol::File';
     }
-    elsif ( $uri =~ m{^http://} ) {
+    elsif ( $protocol eq 'http' ) {
         require Plient::Protocol::HTTP;
-        $class = 'Plient::Protocol::HTTP';
+        return 'Plient::Protocol::HTTP';
     }
-    elsif ( $uri =~ m{^https://} ) {
+    elsif ( $protocol eq 'https' ) {
         require Plient::Protocol::HTTPS;
-        $class = 'Plient::Protocol::HTTPS';
+        return 'Plient::Protocol::HTTPS';
     }
     else {
         warn "unsupported protocol";
         return;
     }
+}
+
+
+sub dispatch {
+    my ( $method, $uri, $args ) = @_;
+    $method = lc $method;
+    $method ||= 'get';    # people use get most of the time.
+    my $class = _dispatch_protocol( _extract_protocol($uri) );
+    return unless $class;
 
     if ( my $sub = $class->support_method( $method, $args ) ) {
         return sub { $sub->( $uri, $args ) };
