@@ -32,7 +32,6 @@ sub plient {
     }
 }
 
-
 sub dispatch {
     my ( $method, $uri, $args ) = @_;
     $method = lc $method;
@@ -60,6 +59,7 @@ sub dispatch {
     }
     else {
         warn "unsupported $method";
+        return;
     }
 }
 
