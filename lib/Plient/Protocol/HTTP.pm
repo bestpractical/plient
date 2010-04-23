@@ -6,7 +6,7 @@ use Carp;
 use base 'Plient::Protocol';
 
 sub prefix { 'http' }
-sub methods { qw/get post head put/ }
+sub methods { qw/get post head/ }
 
 1;
 
