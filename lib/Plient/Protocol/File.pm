@@ -11,7 +11,7 @@ sub methods { qw/get/ }
 sub get {
     my ( $file, $args ) = @_;
     $file =~ s!file:(?://)?!!; # file:foo/bar is valid too
-    open my $fh, '<', $file or warn "failed to open $file: $!" && return;
+    open my $fh, '<', $file or warn "failed to open $file: $!" and return;
     local $/;
     <$fh>;
 }
