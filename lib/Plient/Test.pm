@@ -21,7 +21,8 @@ sub start_http_server {
     my $pid = fork;
     if ( defined $pid ) {
         if ($pid) {
-            usleep 300_000; # give plackup sometime to run ;)
+            # have you ever been annoied that "sleep 1" is too much?
+            usleep 1_000_000 * ( $ENV{PLIENT_TEST_PLACKUP_TIME} || 1 );
             push @pids, $pid;
             return "http://localhost:$port";
         }
