@@ -105,6 +105,8 @@ my $found_handlers;
 sub all_handlers {
     return @all_handlers if $found_handlers;
     @all_handlers = @all_handlers, find_handlers();
+    my %hash = map { $_ => undef } @all_handlers;
+    @all_handlers = keys %hash;
 }
 
 sub handlers {
