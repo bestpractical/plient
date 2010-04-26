@@ -112,8 +112,18 @@ sub all_handlers {
 # to include handlers not in @INC.
 sub _add_handlers {
     shift if $_[0] && $_[0] eq __PACKAGE__;
-    push @all_handlers,
-      grep { $_->can('support_protocol') && $_->can('support_method') } @_;
+    for my $handler (@_) {
+        next unless $handler;
+        if ( $handler->can('support_protocol')
+            && $handler->can('support_method') )
+        {
+            push @all_handlers, $handler;
+        }
+        else {
+            warn "$handler doesn't look like a Plient handler";
+        }
+    }
+
     my %hash = map { $_ => undef } @all_handlers;
     @all_handlers = keys %hash;
 }
