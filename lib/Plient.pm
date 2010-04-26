@@ -101,9 +101,10 @@ sub dispatch {
 }
 
 my @all_handlers;
+my $found_handlers;
 sub all_handlers {
-    return @all_handlers if @all_handlers;
-    @all_handlers = find_handlers();
+    return @all_handlers if $found_handlers;
+    @all_handlers = @all_handlers, find_handlers();
 }
 
 sub handlers {
@@ -133,6 +134,7 @@ sub handlers {
 }
 
 sub find_handlers {
+    $found_handlers = 1;
     my @hd;
     for my $inc (@INC) {
         my $handler_dir = catdir( $inc, 'Plient', 'Handler' );
@@ -147,7 +149,7 @@ sub find_handlers {
         }
     }
 
-    @hd = grep { eval "require $hd" or warn "failed to require $hd" and 0 } @hd;
+    @hd = grep { eval "require $_" or warn "failed to require $_" and 0 } @hd;
 
     @hd;
 }
