@@ -100,13 +100,12 @@ sub dispatch {
     }
 }
 
-my @all_handlers;
+my %all_handlers;
 my $found_handlers;
 sub all_handlers {
-    return @all_handlers if $found_handlers;
-    @all_handlers = @all_handlers, find_handlers();
-    my %hash = map { $_ => undef } @all_handlers;
-    @all_handlers = keys %hash;
+    return keys %all_handlers if $found_handlers;
+    @all_handlers{keys %all_handlers, find_handlers()} = ();
+    keys %all_handlers;
 }
 
 # to include handlers not in @INC.
@@ -117,15 +116,14 @@ sub _add_handlers {
         if ( $handler->can('support_protocol')
             && $handler->can('support_method') )
         {
-            push @all_handlers, $handler;
+            $all_handlers{$handler} = ();
         }
         else {
             warn "$handler doesn't look like a Plient handler";
         }
     }
 
-    my %hash = map { $_ => undef } @all_handlers;
-    @all_handlers = keys %hash;
+    return keys %all_handlers;
 }
 
 sub handlers {
@@ -150,7 +148,7 @@ sub handlers {
     }
     else {
         # fallback to return all the handlers
-        return @all_handlers;
+        return keys %all_handlers;
     }
 }
 
