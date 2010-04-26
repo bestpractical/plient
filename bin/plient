@@ -6,17 +6,19 @@ use Getopt::Long;
 
 my %args;
 
-GetOptions( \%args, ) or die 'unknown option';
+GetOptions( \%args, 'help|h' ) or die 'unknown option';
 
 my $USAGE =<<EOF;
-Usage:
-    # fetch a page:
-    plient http://cpan.org/
-    plient get http://cpan.org/
-
-Arguments:
-
+USAGE: plient [METHOD] URL [ ... ]
+EXAMPLES:
+    plient http://cpan.org/                         # fetch http://cpan.org
+    plient get http://cpan.org/                     # ditto
 EOF
+
+if ( $args{help} || !$ARGV[0] ) {
+    print $USAGE;
+    exit;
+}
 
 my ( $method, @uri ) = @ARGV;
 if ( $method && $method =~ m{://} ) {
@@ -24,7 +26,6 @@ if ( $method && $method =~ m{://} ) {
     $method = 'get';
 }
 
-use Plient;
 for my $uri ( @uri ) {
     print plient( $method, $uri );
 }
