@@ -13,7 +13,7 @@ sub may_support_protocol {
     exists $class->all_protocol->{$protocol};
 }
 
-# you must call this when you init the handle, or nothing will return
+# call this after init(), or maybe nothing will return
 sub support_protocol {
     my $class    = shift;
     my $protocol = shift;
