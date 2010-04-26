@@ -190,7 +190,7 @@ __END__
 
 =head1 NAME
 
-Plient - 
+Plient - the uniform client of http, https, etc. 
 
 
 =head1 SYNOPSIS
