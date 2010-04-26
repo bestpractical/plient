@@ -29,6 +29,10 @@ sub support_method {
     $class->method->{ $method };
 }
 
+sub _add_to_plient {
+    Plient->_add_handlers(shift);
+}
+
 
 1;
 

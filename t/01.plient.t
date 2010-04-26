@@ -28,10 +28,11 @@ ok( ! grep( { /Fake1/ } Plient->all_handlers ), 'not found Fake1 handler' );
 ok( grep( { /Fake2/ } Plient->all_handlers ), 'found Fake2 handler' );
 
 {
+
     # Fake3 is based on 'Plient::Handler'
     package Plient::Handler::Fake3;
     use base 'Plient::Handler';
-    Plient->_add_handlers('Plient::Handler::Fake3');
+    __PACKAGE__->_add_to_plient();
 }
 
 ok( grep( { /Fake3/ } Plient->all_handlers ), 'found Fake3 handler' );
