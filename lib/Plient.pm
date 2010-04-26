@@ -146,9 +146,8 @@ sub find_handlers {
             }
         }
     }
-    for my $hd (@hd) {
-        eval "require $hd" or warn "failed to require $hd";
-    }
+
+    @hd = grep { eval "require $hd" or warn "failed to require $hd" and 0 } @hd;
 
     @hd;
 }
