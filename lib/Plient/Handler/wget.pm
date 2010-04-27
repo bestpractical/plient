@@ -2,8 +2,11 @@ package Plient::Handler::wget;
 use strict;
 use warnings;
 
-use base 'Plient::Handler';
-use Plient::Util 'which';
+require Plient::Handler unless $Plient::bundle_mode;
+our @ISA = 'Plient::Handler';
+
+require Plient::Util unless $Plient::bundle_mode;
+Plient::Util->import;
 
 my ( $wget, %protocol, %all_protocol, %method );
 
@@ -118,7 +121,11 @@ sub init {
     return 1;
 }
 
+__PACKAGE__->_add_to_plient if $Plient::bundle_mode;
+
 1;
+
+__END__
 
 =head1 NAME
 

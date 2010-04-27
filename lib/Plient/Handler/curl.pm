@@ -2,8 +2,11 @@ package Plient::Handler::curl;
 use strict;
 use warnings;
 
-use base 'Plient::Handler';
-use Plient::Util 'which';
+require Plient::Handler unless $Plient::bundle_mode;
+our @ISA = 'Plient::Handler';
+
+require Plient::Util unless $Plient::bundle_mode;
+Plient::Util->import;
 
 my ( $curl, $curl_config, %all_protocol, %protocol, %method );
 
@@ -98,6 +101,7 @@ sub init {
     return 1;
 }
 
+__PACKAGE__->_add_to_plient if $Plient::bundle_mode;
 1;
 
 __END__

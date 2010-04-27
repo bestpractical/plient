@@ -2,7 +2,8 @@ package Plient::Handler::HTTPLite;
 use strict;
 use warnings;
 
-use base 'Plient::Handler';
+require Plient::Handler unless $Plient::bundle_mode;
+our @ISA = 'Plient::Handler';
 my ( $HTTPLite, %all_protocol, %protocol, %method );
 
 %all_protocol = ( http => undef );
@@ -49,6 +50,8 @@ sub init {
 
     return 1;
 }
+
+__PACKAGE__->_add_to_plient if $Plient::bundle_mode;
 
 1;
 

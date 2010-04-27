@@ -2,8 +2,8 @@ package Plient::Protocol::HTTPS;
 
 use warnings;
 use strict;
-use Carp;
-use base 'Plient::Protocol::HTTP';
+require Plient::Protocol::HTTP unless $Plient::bundle_mode;
+our @ISA = 'Plient::Protocol::HTTP';
 
 sub prefix { 'https' }
 

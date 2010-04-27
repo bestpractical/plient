@@ -1,8 +1,9 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
-use Plient;
 use Getopt::Long;
+require Plient unless $ENV{PLIENT_BUNDLE_MODE};
+Plient->import;
 
 my %args;
 

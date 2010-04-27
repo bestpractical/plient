@@ -7,6 +7,7 @@ our $VERSION = '0.01';
 use File::Spec::Functions;
 use base 'Exporter';
 our @EXPORT = 'plient';
+our $bundle_mode = $ENV{PLIENT_BUNDLE_MODE};
 
 sub plient {
     my ( $method, $uri, $args ) = @_;
@@ -56,15 +57,15 @@ sub _dispatch_protocol {
     my $protocol = shift;
     return unless $protocol;
     if ( $protocol eq 'file' ) {
-        require Plient::Protocol::File;
+        require Plient::Protocol::File unless $bundle_mode;
         return 'Plient::Protocol::File';
     }
     elsif ( $protocol eq 'http' ) {
-        require Plient::Protocol::HTTP;
+        require Plient::Protocol::HTTP unless $bundle_mode;
         return 'Plient::Protocol::HTTP';
     }
     elsif ( $protocol eq 'https' ) {
-        require Plient::Protocol::HTTPS;
+        require Plient::Protocol::HTTPS unless $bundle_mode;
         return 'Plient::Protocol::HTTPS';
     }
     else {
@@ -154,6 +155,7 @@ sub handlers {
 
 sub find_handlers {
     $found_handlers = 1;
+    return if $bundle_mode;
     my @hd;
     for my $inc (@INC) {
         my $handler_dir = catdir( $inc, 'Plient', 'Handler' );

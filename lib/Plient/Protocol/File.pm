@@ -2,8 +2,8 @@ package Plient::Protocol::File;
 
 use warnings;
 use strict;
-use Carp;
-use base 'Plient::Protocol';
+require Plient::Protocol unless $Plient::bundle_mode;
+our @ISA = 'Plient::Protocol';
 
 sub prefix { 'file' }
 sub methods { qw/get/ }
