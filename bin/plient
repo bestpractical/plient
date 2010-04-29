@@ -3,20 +3,34 @@ use strict;
 use warnings;
 use Getopt::Long;
 require Plient unless $ENV{PLIENT_BUNDLE_MODE};
-Plient->import;
+Plient->import( 'plient', 'plient_support' );
 
 my %args;
 
-GetOptions( \%args, 'help|h' ) or die 'unknown option';
+GetOptions( \%args, 'help|h', 'support|s=s' ) or die 'unknown option';
 
 my $USAGE =<<EOF;
 USAGE: plient [METHOD] URL [ ... ]
 EXAMPLES:
     plient http://cpan.org/                         # fetch http://cpan.org
     plient get http://cpan.org/                     # ditto
+    plient --support http_get                       # check is support HTTP GET
+    plient -s http_get                              # ditto
 EOF
 
-if ( $args{help} || !$ARGV[0] ) {
+if ( $args{help} ) {
+    print $USAGE;
+    exit;
+}
+
+if ( $args{support} ) {
+    my ( $protocol, $method ) = split /_/, $args{support}, 2;
+    print plient_support( $protocol, $method ) ? 'yes' : 'no';
+    print "\n";
+    exit;
+}
+
+if ( !$ARGV[0] ) {
     print $USAGE;
     exit;
 }
