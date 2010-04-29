@@ -81,9 +81,10 @@ sub plient_support {
     my ( $protocol, $method, $args ) = @_;
     return unless $protocol;
     $method ||= 'get';
+    $args   ||= {};
     my $class = _dispatch_protocol( lc $protocol );
     return unless $class;
-    return $class->support_method( $method, $args );
+    return $class->support_method( $method, { %$args, check_only => 1 } );
 }
 
 sub dispatch {

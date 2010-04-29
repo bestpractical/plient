@@ -11,8 +11,9 @@ sub support_method {
     # trans $args here to let handlers to decide to pass or not
     my ( $class, $method_name, $args ) = @_;
     $method_name = lc $method_name;
+    $args ||= {};
 
-    if ( !grep { $method_name eq $_ } $class->methods ) {
+    if ( ! $args->{check_only} && !grep { $method_name eq $_ } $class->methods ) {
         warn "$method_name for $class is not officially supported yet";
     }
 
@@ -26,7 +27,7 @@ sub support_method {
             return $method;
         }
     }
-    warn "$handler_method_name is not supported yet";
+    warn "$handler_method_name is not supported yet" unless $args->{check_only};
     return;
 }
 
