@@ -7,6 +7,7 @@ our $VERSION = '0.01';
 use File::Spec::Functions;
 use base 'Exporter';
 our @EXPORT = 'plient';
+our @EXPORT_OK = 'plient_support';
 our $bundle_mode = $ENV{PLIENT_BUNDLE_MODE};
 
 sub plient {
@@ -75,12 +76,12 @@ sub _dispatch_protocol {
 }
 
 
-sub available {
+sub plient_support {
     shift if $_[0] && $_[0] eq __PACKAGE__;
     my ( $protocol, $method, $args ) = @_;
     return unless $protocol;
     $method ||= 'get';
-    my $class = _dispatch_protocol(lc $protocol);
+    my $class = _dispatch_protocol( lc $protocol );
     return unless $class;
     return $class->support_method( $method, $args );
 }

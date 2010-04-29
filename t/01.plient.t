@@ -5,7 +5,7 @@ use Test::More tests => 5;
 
 use_ok( 'Plient' );
 
-ok( Plient->available('File','GET'), 'supports File GET' );
+ok( Plient->plient_support('File','GET'), 'supports File GET' );
 # ok( Plient->available('HTTP','GET'), 'supports HTTP GET' );
 
 
