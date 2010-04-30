@@ -27,7 +27,8 @@ sub support_method {
             return $method;
         }
     }
-    warn "$handler_method_name is not supported yet" unless $args->{check_only};
+    warn "$handler_method_name is not supported in available handlers"
+      unless $args->{check_only};
     return;
 }
 
