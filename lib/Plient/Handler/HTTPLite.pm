@@ -20,7 +20,9 @@ sub init {
     $method{http_get} = sub {
         my ( $uri, $args ) = @_;
         my $http  = HTTP::Lite->new;
+        add_headers( $http, $args->{headers} ) if $args->{headers};
         my $res = $http->request($uri) || '';
+
         if ( $res == 200 || $res == 301 || $res == 302 ) {
 
             # XXX TODO handle redirect
@@ -35,6 +37,7 @@ sub init {
     $method{http_post} = sub {
         my ( $uri, $args ) = @_;
         my $http  = HTTP::Lite->new;
+        add_headers( $http, $args->{headers} ) if $args->{headers};
         $http->prepare_post( $args->{body} ) if $args->{body};
         my $res = $http->request($uri) || '';
         if ( $res == 200 || $res == 301 || $res == 302 ) {
@@ -49,6 +52,13 @@ sub init {
     };
 
     return 1;
+}
+
+sub add_headers {
+    my ( $http, $headers ) = @_;
+    for my $k ( keys %$headers ) {
+        $http->add_req_header( $k, $headers->{$k} );
+    }
 }
 
 __PACKAGE__->_add_to_plient if $Plient::bundle_mode;

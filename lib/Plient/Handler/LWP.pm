@@ -29,6 +29,7 @@ sub init {
 
         # XXX TODO tweak the new arguments
         my $ua  = LWP::UserAgent->new;
+        add_headers( $ua, $args->{headers} ) if $args->{headers};
         my $res = $ua->get($uri);
         if ( $res->is_success ) {
             return $res->decoded_content;
@@ -44,6 +45,7 @@ sub init {
 
         # XXX TODO tweak the new arguments
         my $ua  = LWP::UserAgent->new;
+        add_headers( $ua, $args->{headers} ) if $args->{headers};
         my $res =
           $ua->post( $uri,
             $args->{body} ? ( content => $args->{body} ) : () );
@@ -82,6 +84,13 @@ sub init {
         $method{https_post} = $method{http_post};
     }
     return 1;
+}
+
+sub add_headers {
+    my ( $ua, $headers ) = @_;
+    for my $k ( keys %$headers ) {
+        $ua->default_header( $k, $headers->{$k} );
+    }
 }
 
 __PACKAGE__->_add_to_plient if $Plient::bundle_mode;

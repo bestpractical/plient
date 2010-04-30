@@ -34,7 +34,8 @@ sub init {
     if ( exists $protocol{http} ) {
         $method{http_get} = sub {
             my ( $uri, $args ) = @_;
-            if ( open my $fh, "$curl -s -L $uri |" ) {
+            my $headers = translate_headers( $args->{headers} );
+            if ( open my $fh, "$curl -s -L $uri $headers |" ) {
                 local $/;
                 <$fh>;
             }
@@ -46,7 +47,6 @@ sub init {
 
         $method{http_post} = sub {
             my ( $uri, $args ) = @_;
-            $args ||= {};
 
             my $data = '';
             if ( $args->{body} ) {
@@ -55,20 +55,22 @@ sub init {
                     if ( defined $kv{$k} ) {
                         if ( ref $kv{$k} && ref $kv{$k} eq 'ARRAY' ) {
                             for my $i ( @{ $kv{$k} } ) {
-                                $data .= " -d $k=$i";
+                                $data .= " -d '$k=$i'";
                             }
                         }
                         else {
-                            $data .= " -d $k=$kv{$k}";
+                            $data .= " -d $k='$kv{$k}'";
                         }
                     }
                     else {
-                        $data .= " -d $k=";
+                        $data .= " -d '$k='";
                     }
                 }
             }
 
-            if ( open my $fh, "$curl -s -L $uri $data |" ) {
+            my $headers = translate_headers( $args->{headers} );
+
+            if ( open my $fh, "$curl -s -L $uri $data $headers |" ) {
                 local $/;
                 <$fh>;
             }
@@ -79,7 +81,8 @@ sub init {
         };
         $method{http_head} = sub {
             my ( $uri, $args ) = @_;
-            if ( open my $fh, "$curl -s -I -L $uri |" ) {
+            my $headers = translate_headers( $args->{headers} );
+            if ( open my $fh, "$curl -s -I -L $uri $headers |" ) {
                 local $/;
                 my $head = <$fh>;
                 $head =~ s/\r\n$//;
@@ -99,6 +102,16 @@ sub init {
         }
     }
     return 1;
+}
+
+sub translate_headers {
+    my $headers = shift;
+    return '' unless $headers;
+    my $str;
+    for my $k ( keys %$headers ) {
+        $str .= " -H '$k:$headers->{$k}'";
+    }
+    return $str;
 }
 
 __PACKAGE__->_add_to_plient if $Plient::bundle_mode;

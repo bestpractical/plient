@@ -37,7 +37,8 @@ sub init {
 
     $method{http_get} = sub {
         my ( $uri, $args ) = @_;
-        if ( open my $fh, "$wget -q -O - $uri |" ) {
+        my $headers = translate_headers( $args->{headers} );
+        if ( open my $fh, "$wget -q -O - $headers $uri |" ) {
             local $/;
             <$fh>;
         }
@@ -49,7 +50,7 @@ sub init {
 
     $method{http_post} = sub {
         my ( $uri, $args ) = @_;
-        $args ||= {};
+        my $headers = translate_headers( $args->{headers} );
 
         my $data = '';
         if ( $args->{body} ) {
@@ -71,7 +72,7 @@ sub init {
             }
         }
 
-        if ( open my $fh, "$wget -q -O - $data $uri |" ) {
+        if ( open my $fh, "$wget -q -O - $data $headers $uri |" ) {
             local $/;
             <$fh>;
         }
@@ -84,7 +85,8 @@ sub init {
     $method{http_head} = sub {
         my ( $uri, $args ) = @_;
         # we can't use -q here, or some version may not show the header
-        if ( open my $fh, "$wget -S --spider $uri 2>&1 |" ) {
+        my $headers = translate_headers( $args->{headers} );
+        if ( open my $fh, "$wget -S --spider $headers $uri 2>&1 |" ) {
             my $head = '';
             my $flag;
             while ( my $line = <$fh>) {
@@ -119,6 +121,16 @@ sub init {
     }
 
     return 1;
+}
+
+sub translate_headers {
+    my $headers = shift;
+    return '' unless $headers;
+    my $str;
+    for my $k ( keys %$headers ) {
+        $str .= " --header '$k:$headers->{$k}'";
+    }
+    return $str;
 }
 
 __PACKAGE__->_add_to_plient if $Plient::bundle_mode;

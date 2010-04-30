@@ -8,7 +8,18 @@ my $app = sub {
     my $req = Plack::Request->new($env);
     if ( $req->method eq 'GET' ) {
         if ( $req->path eq '/hello' ) {
-            return [ 200, [ 'Content-Type' => 'text/plain' ], ['hello'] ] 
+            my $headers = $req->headers;
+            my $agent = $headers->header('User-Agent');
+            if ($agent =~ /plient/) {
+                return [
+                    200,
+                    [ 'Content-Type' => 'text/plain' ],
+                    [ 'hello ', $agent ],
+                ];
+            }
+            else {
+                return [ 200, [ 'Content-Type' => 'text/plain' ], ['hello'] ];
+            }
         }
     }
     elsif ( $req->method eq 'POST' ) {
