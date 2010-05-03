@@ -38,7 +38,8 @@ if ( !$ARGV[0] ) {
 my ( @uri ) = @ARGV;
 my $method = $args{'request'} || 'get';
 
-for my $uri ( @uri ) {
+for my $uri (@uri) {
+    $uri = 'http://' . $uri unless $uri =~ /^\w+:/;
     print plient( $method, $uri );
 }
 
