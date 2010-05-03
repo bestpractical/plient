@@ -7,15 +7,15 @@ Plient->import( 'plient', 'plient_support' );
 
 my %args;
 
-GetOptions( \%args, 'help|h', 'support|s=s' ) or die 'unknown option';
+GetOptions( \%args, 'help|h', 'support|s=s', 'request|X=s', )
+  or die 'unknown option';
 
 my $USAGE =<<EOF;
-USAGE: plient [METHOD] URL [ ... ]
+USAGE: plient URL [ ... ]
 EXAMPLES:
-    plient http://cpan.org/                         # fetch http://cpan.org
-    plient get http://cpan.org/                     # ditto
     plient --support http_get                       # check is support HTTP GET
     plient -s http_get                              # ditto
+    plient http://cpan.org/                         # fetch http://cpan.org
 EOF
 
 if ( $args{help} ) {
@@ -35,11 +35,8 @@ if ( !$ARGV[0] ) {
     exit;
 }
 
-my ( $method, @uri ) = @ARGV;
-if ( $method && $method =~ m{://} ) {
-    push @uri, $method;
-    $method = 'get';
-}
+my ( @uri ) = @ARGV;
+my $method = $args{'request'} || 'get';
 
 for my $uri ( @uri ) {
     print plient( $method, $uri );
