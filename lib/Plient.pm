@@ -214,18 +214,85 @@ __END__
 
 =head1 NAME
 
-Plient - the uniform client of http, https, etc. 
-
+Plient - the uniform way to use curl, wget, LWP, HTTP::Lite, etc.
 
 =head1 SYNOPSIS
 
-    use Plient;
+    use Plient qw/plient plient_support/;
+    my $content = plient( 'get', 'http://cpan.org' );      # get http://cpan.org
+
+    if ( plient_support( 'http', 'post' ) ) {
+        my $content = plient(
+            'post',
+            'http://foo.com',
+            {
+                body => {
+                    title => 'foo',
+                    body  => 'bar',
+                }
+            }
+        );
+    }
+
+# or 
+    if ( my $http_post = plient_support( 'http', 'post' ) ) {
+        my $content = $http_post->(
+            'http://foo.com',
+            {
+                body => {
+                    title => 'foo',
+                    body  => 'bar',
+                }
+            }
+        );
+    }
 
 =head1 DESCRIPTION
 
+C<Plient> is a wrapper to clients like C<curl>, C<wget>, C<LWP> and
+C<HTTP::Lite>, aiming to supply a uniform way for users.
+
+It's useful if you don't want to bind your applications to only one client.
+e.g. forcing users to install C<curl> even when some of them already have C<wget>
+installed.
+
+C<Plient> will try its best to use clients available.
 
 =head1 INTERFACE
 
+=head2 plient( $method, $uri, $args )
+
+accessing $uri with the specified $method and $args.
+
+return the content server returns.
+
+$method: for HTTP(S), can be 'get', 'post', 'head', etc.
+
+$uri: e.g. http://cpan.org
+
+$args: hashref, currently, two useful items for HTTP(S):
+
+    headers: hashref, this will be sent as HTTP(S) headers. e.g.
+        { 'User-Agent' => 'plient/0.01' }
+
+    body: hashref, this will be sent as post data.
+        { 'title' => 'foo', body => 'bar' }
+
+=head2 plient_support( $protocol, $method, $args )
+
+test if we have $protocol's $method support in current environment.
+returns the subroutine that can be called like a currying plient(),
+e.g. the following 2 ways of 'GET' http://cpan.org are equivalent:
+
+    my $content = plient('get', 'http://cpan.org');
+    # ditto using plient_support
+    my $http_get = plient_support('http', 'get');
+    if ($http_get) {
+        my $content = $http_get->('http://cpan.org');
+    }
+
+currently $args is not used, we may use it later, e.g. to test if support 
+Digest Authentication.
 
 =head1 DEPENDENCIES
 
