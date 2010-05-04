@@ -275,18 +275,22 @@ implemented currently.
 
 accessing $uri with the specified $method and $args.
 
-return the content server returns.
+return the content server returns unless $args->{output_file} is set,
+in which case return 1 to indicate success.
 
 $method: for HTTP(S), can be 'get', 'post', 'head', etc.
 
 $uri: e.g. http://cpan.org
 
-$args: hashref, currently, two useful items for HTTP(S):
+$args: hashref
 
+    output_file: the file path returned content from server will be written to.
+        if this option is set, plient() will return 1 if with success.
+    
     headers: hashref, this will be sent as HTTP(S) headers. e.g.
         { 'User-Agent' => 'plient/0.01' }
 
-    body: hashref, this will be sent as post data.
+    body: hashref, this will be sent as HTTP(S) post data.
         { 'title' => 'foo', body => 'bar' }
 
 =head2 plient_support( $protocol, $method, $args )
