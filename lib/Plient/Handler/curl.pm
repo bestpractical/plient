@@ -34,7 +34,7 @@ sub init {
     if ( exists $protocol{http} ) {
         $method{http_get} = sub {
             my ( $uri, $args ) = @_;
-            my $headers = translate_headers( $args->{headers} );
+            my $headers = translate_headers( $args );
             my $auth    = translate_auth($args);
             if ( open my $fh, "$curl -k -s -L $headers $auth $uri |" ) {
                 local $/;
@@ -101,7 +101,7 @@ sub init {
         };
         $method{http_head} = sub {
             my ( $uri, $args ) = @_;
-            my $headers = translate_headers( $args->{headers} );
+            my $headers = translate_headers( $args );
             my $auth    = translate_auth($args);
             if ( open my $fh, "$curl -s -I -L $headers $auth $uri |" ) {
                 local $/;

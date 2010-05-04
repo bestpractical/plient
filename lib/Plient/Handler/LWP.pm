@@ -87,7 +87,7 @@ sub init {
                 ? ( Content_Type => 'form−data' )
                 : ()
             ),
-            @$content ? ( Content => $content ) : (),
+            $args->{body} ? ( Content => $content ) : (),
         );
 
         if ( $res->is_success ) {
