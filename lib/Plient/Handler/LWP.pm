@@ -30,7 +30,7 @@ sub init {
         # XXX TODO tweak the new arguments
         my $ua  = LWP::UserAgent->new;
         $ua->env_proxy;
-        add_headers( $ua, $args->{headers} ) if $args->{headers};
+        add_headers( $ua, $uri, $args );
         my $res = $ua->get($uri);
         if ( $res->is_success ) {
             return $res->decoded_content;
@@ -47,7 +47,7 @@ sub init {
         # XXX TODO tweak the new arguments
         my $ua  = LWP::UserAgent->new;
         $ua->env_proxy;
-        add_headers( $ua, $args->{headers} ) if $args->{headers};
+        add_headers( $ua, $uri, $args );
         my $res =
           $ua->post( $uri,
             $args->{body} ? ( content => $args->{body} ) : () );
@@ -89,9 +89,27 @@ sub init {
 }
 
 sub add_headers {
-    my ( $ua, $headers ) = @_;
+    my ( $ua, $uri, $args ) = @_;
+    my $headers = $args->{headers} || {};
     for my $k ( keys %$headers ) {
         $ua->default_header( $k, $headers->{$k} );
+    }
+
+    if ( $args->{user} && defined $args->{password} ) {
+        my $method = lc $args->{auth_method} || 'basic';
+        if ( $method eq 'basic' ) {
+            require MIME::Base64;
+            $ua->default_header(
+                "Authorization",
+                'Basic '
+                  . MIME::Base64::encode_base64(
+                    "$args->{user}:$args->{password}", ''
+                  )
+              )
+        }
+        else {
+            die "aborting: unsupported auth method: $method";
+        }
     }
 }
 

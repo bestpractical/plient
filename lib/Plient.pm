@@ -282,16 +282,34 @@ $method: for HTTP(S), can be 'get', 'post', 'head', etc.
 
 $uri: e.g. http://cpan.org
 
-$args: hashref
+$args: hashref, useful keys are:
 
-    output_file: the file path returned content from server will be written to.
-        if this option is set, plient() will return 1 if with success.
+=over 4
+
+=item output_file
+
+the file path returned content from server will be written to.
+if this option is set, plient() will return 1 if with success.
+
+=item user and password
+
+for HTTP(S), these will be used to set Authorization header
+
+=item auth_method
+
+currently, only 'Basic' is supported, default is 'Basic'
     
-    headers: hashref, this will be sent as HTTP(S) headers. e.g.
-        { 'User-Agent' => 'plient/0.01' }
+=item headers
 
-    body: hashref, this will be sent as HTTP(S) post data.
-        { 'title' => 'foo', body => 'bar' }
+hashref, this will be sent as HTTP(S) headers. e.g.
+  { 'User-Agent' => 'plient/0.01' }
+
+=item body
+
+hashref, this will be sent as HTTP(S) post data. e.g.
+  { 'title' => 'foo', body => 'bar' }
+
+=back
 
 =head2 plient_support( $protocol, $method, $args )
 

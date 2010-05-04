@@ -3,11 +3,13 @@ use strict;
 use warnings;
 use Getopt::Long;
 require Plient unless $ENV{PLIENT_BUNDLE_MODE};
+require Plient::Util unless $ENV{PLIENT_BUNDLE_MODE};
 Plient->import( 'plient', 'plient_support' );
 
 my %args;
 
-GetOptions( \%args, 'help|h', 'support|s=s', 'request|X=s', 'output|o=s' )
+GetOptions( \%args, 'help|h', 'support|s=s', 'request|X=s', 'output|o=s',
+    'user|u=s' )
   or die 'unknown option';
 
 my $USAGE =<<EOF;
@@ -17,6 +19,7 @@ EXAMPLES:
     plient -s http_get                              # ditto
     plient http://cpan.org/                         # fetch http://cpan.org
     plient -o /tmp/cpan.html http://cpan.org/       # write to file
+    plient -u user:password http://foo.org          # use basic auth
 EOF
 
 if ( $args{help} ) {
@@ -41,11 +44,60 @@ my $method = $args{'request'} || 'get';
 
 for my $uri (@uri) {
     $uri = 'http://' . $uri unless $uri =~ /^\w+:/;
+    my $u = $args{user};
+    my ( $user, $password ) = split /:/, $args{user}, 2;
+    if ($user) {
+        while ( !defined $password ) {
+            $password = prompt_password("password for $user:");
+        }
+    }
+
     if ( $args{output} ) {
-        plient( $method, $uri, { output_file => $args{output} } );
+        plient(
+            $method, $uri,
+            {
+                output_file => $args{output},
+                user        => $user,
+                password    => $password,
+            }
+        );
     }
     else {
-        print plient( $method, $uri );
+        print plient(
+            $method, $uri,
+            {
+                user     => $user,
+                password => $password,
+            }
+        );
     }
+}
+
+sub prompt_password {
+    my $prompt = shift;
+    my $password;
+    print "$prompt ";
+    eval { require Term::ReadKey; };
+    if ($@) {
+
+        # no Term::ReadKey available, let's use stty
+        if ( my $stty = Plient::Util::which('stty') ) {
+            system "stty -echo";
+            $password = <STDIN>;
+            system "stty echo";
+        }
+        else {
+            # no stty either, let's just read password as normal
+            # TODO this is bad, need improve
+            $password = <STDIN>;
+        }
+    }
+    else {
+        Term::ReadKey::ReadMode('noecho');
+        $password = Term::ReadKey::ReadLine(0);
+        Term::ReadKey::ReadMode(0); #reset
+    }
+    chomp $password;
+    return $password;
 }
 

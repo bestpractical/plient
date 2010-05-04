@@ -37,8 +37,9 @@ sub init {
 
     $method{http_get} = sub {
         my ( $uri, $args ) = @_;
-        my $headers = translate_headers( $args->{headers} );
-        if ( open my $fh, "$wget -q -O - $headers $uri |" ) {
+        my $headers = translate_headers( $args );
+        my $auth    = translate_auth($args);
+        if ( open my $fh, "$wget -q -O - $headers $auth $uri |" ) {
             local $/;
             <$fh>;
         }
@@ -50,7 +51,8 @@ sub init {
 
     $method{http_post} = sub {
         my ( $uri, $args ) = @_;
-        my $headers = translate_headers( $args->{headers} );
+        my $headers = translate_headers( $args );
+        my $auth    = translate_auth($args);
 
         my $data = '';
         if ( $args->{body} ) {
@@ -72,7 +74,7 @@ sub init {
             }
         }
 
-        if ( open my $fh, "$wget -q -O - $data $headers $uri |" ) {
+        if ( open my $fh, "$wget -q -O - $data $headers $auth $uri |" ) {
             local $/;
             <$fh>;
         }
@@ -85,8 +87,9 @@ sub init {
     $method{http_head} = sub {
         my ( $uri, $args ) = @_;
         # we can't use -q here, or some version may not show the header
-        my $headers = translate_headers( $args->{headers} );
-        if ( open my $fh, "$wget -S --spider $headers $uri 2>&1 |" ) {
+        my $headers = translate_headers( $args );
+        my $auth    = translate_auth($args);
+        if ( open my $fh, "$wget -S --spider $headers $auth $uri 2>&1 |" ) {
             my $head = '';
             my $flag;
             while ( my $line = <$fh>) {
@@ -124,13 +127,30 @@ sub init {
 }
 
 sub translate_headers {
-    my $headers = shift;
+    my $args = shift || {};
+    my $headers = $args->{headers};
     return '' unless $headers;
     my $str;
     for my $k ( keys %$headers ) {
         $str .= " --header '$k:$headers->{$k}'";
     }
     return $str;
+}
+
+sub translate_auth {
+    my $args = shift || {};
+    my $auth = '';
+    if ( $args->{user} && defined $args->{password} ) {
+        my $method = lc $args->{auth_method} || 'basic';
+        if ( $method eq 'basic' ) {
+            $auth =
+              " --user '$args->{user}' --password '$args->{password}'";
+        }
+        else {
+            die "aborting: unsupported auth method: $method";
+        }
+    }
+    return $auth;
 }
 
 __PACKAGE__->_add_to_plient if $Plient::bundle_mode;

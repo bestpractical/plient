@@ -20,7 +20,7 @@ sub init {
     $method{http_get} = sub {
         my ( $uri, $args ) = @_;
         my $http  = HTTP::Lite->new;
-        add_headers( $http, $args->{headers} ) if $args->{headers};
+        add_headers( $http, $uri, $args );
         $http->proxy( $ENV{http_proxy} ) if $ENV{http_proxy};
         my $res = $http->request($uri) || '';
 
@@ -39,7 +39,7 @@ sub init {
         my ( $uri, $args ) = @_;
         my $http  = HTTP::Lite->new;
         $http->proxy( $ENV{http_proxy} ) if $ENV{http_proxy};
-        add_headers( $http, $args->{headers} ) if $args->{headers};
+        add_headers( $http, $uri, $args );
         $http->prepare_post( $args->{body} ) if $args->{body};
         my $res = $http->request($uri) || '';
         if ( $res == 200 || $res == 301 || $res == 302 ) {
@@ -57,9 +57,24 @@ sub init {
 }
 
 sub add_headers {
-    my ( $http, $headers ) = @_;
+    my ( $http, $uri, $args ) = @_;
+    my $headers = $args->{headers} || {};
     for my $k ( keys %$headers ) {
         $http->add_req_header( $k, $headers->{$k} );
+    }
+
+    if ( $args->{user} && defined $args->{password} ) {
+        my $method = lc $args->{auth_method} || 'basic';
+        if ( $method eq 'basic' ) {
+            require MIME::Base64;
+            $http->add_req_header( "Authorization",
+                'Basic '
+                  . MIME::Base64::encode_base64( "$args->{user}:$args->{password}", '' )
+            );
+        }
+        else {
+            die "aborting: unsupported auth method: $method";
+        }
     }
 }
 

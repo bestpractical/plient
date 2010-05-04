@@ -35,7 +35,8 @@ sub init {
         $method{http_get} = sub {
             my ( $uri, $args ) = @_;
             my $headers = translate_headers( $args->{headers} );
-            if ( open my $fh, "$curl -s -L $uri $headers |" ) {
+            my $auth    = translate_auth($args);
+            if ( open my $fh, "$curl -k -s -L $headers $auth $uri |" ) {
                 local $/;
                 <$fh>;
             }
@@ -68,9 +69,10 @@ sub init {
                 }
             }
 
-            my $headers = translate_headers( $args->{headers} );
+            my $headers = translate_headers($args);
+            my $auth    = translate_auth($args);
 
-            if ( open my $fh, "$curl -s -L $uri $data $headers |" ) {
+            if ( open my $fh, "$curl -s -L $data $headers $auth $uri |" ) {
                 local $/;
                 <$fh>;
             }
@@ -82,7 +84,8 @@ sub init {
         $method{http_head} = sub {
             my ( $uri, $args ) = @_;
             my $headers = translate_headers( $args->{headers} );
-            if ( open my $fh, "$curl -s -I -L $uri $headers |" ) {
+            my $auth    = translate_auth($args);
+            if ( open my $fh, "$curl -s -I -L $headers $auth $uri |" ) {
                 local $/;
                 my $head = <$fh>;
                 $head =~ s/\r\n$//;
@@ -105,13 +108,30 @@ sub init {
 }
 
 sub translate_headers {
-    my $headers = shift;
+    my $args = shift || {};
+    my $headers = $args->{headers};
     return '' unless $headers;
     my $str;
     for my $k ( keys %$headers ) {
         $str .= " -H '$k:$headers->{$k}'";
     }
     return $str;
+
+}
+
+sub translate_auth {
+    my $args = shift || {};
+    my $auth = '';
+    if ( $args->{user} && defined $args->{password} ) {
+        my $method = lc $args->{auth_method} || 'basic';
+        if ( $method eq 'basic' ) {
+            $auth = " -u '$args->{user}:$args->{password}'";
+        }
+        else {
+            die "aborting: unsupported auth method: $method";
+        }
+    }
+    return $auth;
 }
 
 __PACKAGE__->_add_to_plient if $Plient::bundle_mode;
