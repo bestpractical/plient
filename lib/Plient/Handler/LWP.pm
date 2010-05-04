@@ -59,8 +59,16 @@ sub init {
             for my $k ( keys %{ $args->{body} } ) {
                 if ( my $ref = ref $args->{body}{$k} ) {
                     if ( $ref eq 'ARRAY' ) {
-                        push @$content, $k, $args->{body}{$k}{$_}
-                          for @{ $args->{body}{$k} };
+                        for my $i ( @{ $args->{body}{$k} } ) {
+                            if ( ref $i eq 'HASH' && $i->{file} ) {
+
+                                # file upload
+                                push @$content, $k, [ $i->{file} ];
+                            }
+                            else {
+                                push @$content, $k, $i;
+                            }
+                        }
                     }
                     elsif ( $ref eq 'HASH' ) {
 

@@ -70,11 +70,20 @@ sub init {
                         if ( ref $kv{$k} ) {
                             if ( ref $kv{$k} eq 'ARRAY' ) {
                                 for my $i ( @{ $kv{$k} } ) {
-                                    $data .= " $post_opt '$k=$i'";
+                                    if ( ref $i eq 'HASH'
+                                        && $i->{file} )
+                                    {
+                                        # file upload
+                                        $data .= " $post_opt '$k=\@$i->{file}'";
+                                    }
+                                    else {
+                                        $data .= " $post_opt '$k=$i'";
+                                    }
                                 }
                             }
                             elsif ( ref $kv{$k} eq 'HASH' && $kv{$k}{file} ) {
-                                $data .= " $post_opt '\@$kv{$k}{file}'";
+                                # file upload
+                                $data .= " $post_opt '$k=\@$kv{$k}{file}'";
                             }
                             else {
                                 warn "invalid body value of $k: $kv{$k}";
