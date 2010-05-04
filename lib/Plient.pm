@@ -26,7 +26,15 @@ sub plient {
 
     my $sub = dispatch( $method, $uri, $args );
     if ( $sub ) {
-        $sub->();
+        if ( $args->{output_file} ) {
+            open my $fh, '>', $args->{output_file} or die $!;
+            print $fh $sub->();
+            close $fh;
+            return 1;
+        }
+        else {
+            return $sub->();
+        }
     }
     else {
         warn "failed to $method on $uri"; 
