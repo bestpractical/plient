@@ -21,6 +21,7 @@ sub init {
         my ( $uri, $args ) = @_;
         my $http  = HTTP::Lite->new;
         add_headers( $http, $args->{headers} ) if $args->{headers};
+        $http->proxy( $ENV{http_proxy} ) if $ENV{http_proxy};
         my $res = $http->request($uri) || '';
 
         if ( $res == 200 || $res == 301 || $res == 302 ) {
@@ -37,6 +38,7 @@ sub init {
     $method{http_post} = sub {
         my ( $uri, $args ) = @_;
         my $http  = HTTP::Lite->new;
+        $http->proxy( $ENV{http_proxy} ) if $ENV{http_proxy};
         add_headers( $http, $args->{headers} ) if $args->{headers};
         $http->prepare_post( $args->{body} ) if $args->{body};
         my $res = $http->request($uri) || '';

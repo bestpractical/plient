@@ -29,6 +29,7 @@ sub init {
 
         # XXX TODO tweak the new arguments
         my $ua  = LWP::UserAgent->new;
+        $ua->env_proxy;
         add_headers( $ua, $args->{headers} ) if $args->{headers};
         my $res = $ua->get($uri);
         if ( $res->is_success ) {
@@ -45,6 +46,7 @@ sub init {
 
         # XXX TODO tweak the new arguments
         my $ua  = LWP::UserAgent->new;
+        $ua->env_proxy;
         add_headers( $ua, $args->{headers} ) if $args->{headers};
         my $res =
           $ua->post( $uri,
