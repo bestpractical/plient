@@ -11,6 +11,18 @@ sub all_protocol { return \%all_protocol }
 sub protocol { return \%protocol }
 sub method { return \%method }
 
+sub support_method {
+    my ( $class, $method, $args ) = @_;
+    if (   $args
+        && $args->{content_type}
+        && $args->{content_type} =~ 'form-data' )
+    {
+        return;
+    }
+
+    return $class->SUPER::support_method(@_);
+}
+
 my $inited;
 sub init {
     return if $inited;

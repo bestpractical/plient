@@ -20,12 +20,10 @@ sub support_protocol {
     exists $class->protocol->{$protocol};
 }
 
+# subclass this method to check $args if
+# the handler is not *full fledged*
 sub support_method {
-    my $class = shift;
-    my $method = shift;
-    # TODO we should check args to do more serioud check
-    # e.g. proxy, auth, etc.
-    my $args = shift;
+    my ( $class, $method, $args ) = @_;
     $class->method->{ $method };
 }
 
