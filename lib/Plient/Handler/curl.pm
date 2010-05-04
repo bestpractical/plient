@@ -49,28 +49,46 @@ sub init {
         $method{http_post} = sub {
             my ( $uri, $args ) = @_;
 
+
+            my $headers = translate_headers($args);
+            my $auth    = translate_auth($args);
+
             my $data = '';
+            my $post_opt;
+            if ( $args->{content_type} && $args->{content_type} =~ /form-data/ )
+            {
+                $post_opt = '-F';
+            }
+            else {
+                $post_opt = '-d';
+            }
+
             if ( $args->{body} ) {
                 my %kv = %{$args->{body}};
                 for my $k ( keys %kv ) {
                     if ( defined $kv{$k} ) {
-                        if ( ref $kv{$k} && ref $kv{$k} eq 'ARRAY' ) {
-                            for my $i ( @{ $kv{$k} } ) {
-                                $data .= " -d '$k=$i'";
+                        if ( ref $kv{$k} ) {
+                            if ( ref $kv{$k} eq 'ARRAY' ) {
+                                for my $i ( @{ $kv{$k} } ) {
+                                    $data .= " $post_opt '$k=$i'";
+                                }
+                            }
+                            elsif ( ref $kv{$k} eq 'HASH' && $kv{$k}{file} ) {
+                                $data .= " $post_opt '\@$kv{$k}{file}'";
+                            }
+                            else {
+                                warn "invalid body value of $k: $kv{$k}";
                             }
                         }
                         else {
-                            $data .= " -d $k='$kv{$k}'";
+                            $data .= " $post_opt $k='$kv{$k}'";
                         }
                     }
                     else {
-                        $data .= " -d '$k='";
+                        $data .= " $post_opt '$k='";
                     }
                 }
             }
-
-            my $headers = translate_headers($args);
-            my $auth    = translate_auth($args);
 
             if ( open my $fh, "$curl -s -L $data $headers $auth $uri |" ) {
                 local $/;

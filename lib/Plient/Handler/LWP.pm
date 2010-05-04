@@ -48,9 +48,48 @@ sub init {
         my $ua  = LWP::UserAgent->new;
         $ua->env_proxy;
         add_headers( $ua, $uri, $args );
-        my $res =
-          $ua->post( $uri,
-            $args->{body} ? ( content => $args->{body} ) : () );
+
+        my $content = [];
+        my $is_form_data;
+        if (   $args->{body}
+            && $args->{content_type}
+            && $args->{content_type} =~ /form-data/ )
+        {
+            $is_form_data = 1;
+            for my $k ( keys %{ $args->{body} } ) {
+                if ( my $ref = ref $args->{body}{$k} ) {
+                    if ( $ref eq 'ARRAY' ) {
+                        push @$content, $k, $args->{body}{$k}{$_}
+                          for @{ $args->{body}{$k} };
+                    }
+                    elsif ( $ref eq 'HASH' ) {
+
+                        # file upload
+                        push @$content, $k, [ $args->{body}{$k}{file} ];
+                    }
+                    else {
+                        warn "invalid body value of $k: $args->{body}{$k}";
+                    }
+                }
+                else {
+                    push @$content, $k, $args->{body}{$k};
+                }
+            }
+        }
+        else {
+            $content = $args->{body};
+        }
+
+        my $res = $ua->post(
+            $uri,
+            (
+                $is_form_data
+                ? ( Content_Type => 'form−data' )
+                : ()
+            ),
+            @$content ? ( Content => $content ) : (),
+        );
+
         if ( $res->is_success ) {
             return $res->decoded_content;
         }
