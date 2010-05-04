@@ -260,11 +260,14 @@ Plient - the uniform way to use curl, wget, LWP, HTTP::Lite, etc.
 C<Plient> is a wrapper to clients like C<curl>, C<wget>, C<LWP> and
 C<HTTP::Lite>, aiming to supply a uniform way for users.
 
-It's useful if you don't want to bind your applications to only one client.
-e.g. forcing users to install C<curl> even when some of them already have C<wget>
-installed.
+It's intended to use in situations where you don't want to bind your applications
+to one specific client. e.g. forcing users to install C<curl> even when some of
+them already have C<wget> installed.
 
 C<Plient> will try its best to use clients available.
+
+C<Plient> is a very young project, only a subset of HTTP functionality is
+implemented currently.
 
 =head1 INTERFACE
 
