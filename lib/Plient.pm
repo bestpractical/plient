@@ -298,6 +298,12 @@ for HTTP(S), these will be used to set Authorization header
 =item auth_method
 
 currently, only 'Basic' is supported, default is 'Basic'
+
+=item content_type
+
+for HTTP(S), specify the Contnet-Type of post data.
+  availables are 'urlencoded' and 'form-data'.
+  default is 'urlencoded'.
     
 =item headers
 
@@ -307,7 +313,14 @@ hashref, this will be sent as HTTP(S) headers. e.g.
 =item body
 
 hashref, this will be sent as HTTP(S) post data. e.g.
-  { 'title' => 'foo', body => 'bar' }
+  {
+    title => 'foo',
+    body    => 'bar',
+    foo     => [ 'bar', 'baz' ],
+    file1    => { file => '/path/to/file' },
+  }
+
+  if one value is hashref with file key, it's interpreted as a file upload
 
 =back
 
