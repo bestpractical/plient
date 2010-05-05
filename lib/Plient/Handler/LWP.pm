@@ -56,36 +56,26 @@ sub init {
             && $args->{content_type} =~ /form-data/ )
         {
             $is_form_data = 1;
-            for my $k ( keys %{ $args->{body} } ) {
-                if ( my $ref = ref $args->{body}{$k} ) {
-                    if ( $ref eq 'ARRAY' ) {
-                        for my $i ( @{ $args->{body}{$k} } ) {
-                            if ( ref $i eq 'HASH' && $i->{file} ) {
+            if ( $args->{body_array} ) {
+                my $body = $args->{body_array};
 
-                                # file upload
-                                push @$content, $k, [ $i->{file} ];
-                            }
-                            else {
-                                push @$content, $k, $i;
-                            }
-                        }
-                    }
-                    elsif ( $ref eq 'HASH' ) {
+                for ( my $i = 0 ; $i < $#$body ; $i += 2 ) {
+                    my $key = $body->[$i];
+                    my $value =
+                      defined $body->[ $i + 1 ] ? $body->[ $i + 1 ] : '';
+                    if ( ref $value eq 'HASH' && $value->{file} ) {
 
                         # file upload
-                        push @$content, $k, [ $args->{body}{$k}{file} ];
+                        push @$content, $key, [ $value->{file} ];
                     }
                     else {
-                        warn "invalid body value of $k: $args->{body}{$k}";
+                        push @$content, $key, $value;
                     }
-                }
-                else {
-                    push @$content, $k, $args->{body}{$k};
                 }
             }
         }
         else {
-            $content = $args->{body};
+            $content = $args->{body_array};
         }
 
         my $res = $ua->post(

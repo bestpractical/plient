@@ -57,7 +57,7 @@ sub init {
         my $http  = HTTP::Lite->new;
         $http->proxy( $ENV{http_proxy} ) if $ENV{http_proxy};
         add_headers( $http, $uri, $args );
-        $http->prepare_post( $args->{body} ) if $args->{body};
+        $http->prepare_post( $args->{body_hash} ) if $args->{body_hash};
         my $res = $http->request($uri) || '';
         if ( $res == 200 || $res == 301 || $res == 302 ) {
 

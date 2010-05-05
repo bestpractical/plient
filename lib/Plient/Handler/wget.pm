@@ -67,22 +67,13 @@ sub init {
         my $auth    = translate_auth($args);
 
         my $data = '';
-        if ( $args->{body} ) {
-            my %kv = %{ $args->{body} };
-            for my $k ( keys %kv ) {
-                if ( defined $kv{$k} ) {
-                    if ( ref $kv{$k} && ref $kv{$k} eq 'ARRAY' ) {
-                        for my $i ( @{ $kv{$k} } ) {
-                            $data .= " --post-data $k=$i";
-                        }
-                    }
-                    else {
-                        $data .= " --post-data $k=$kv{$k}";
-                    }
-                }
-                else {
-                    $data .= " --post-data $k=";
-                }
+        if ( $args->{body_array} ) {
+            my $body = $args->{body_array};
+
+            for ( my $i = 0 ; $i < $#$body ; $i += 2 ) {
+                my $key = $body->[$i];
+                my $value = defined $body->[ $i + 1 ] ? $body->[ $i + 1 ] : '';
+                $data .= " --post-data $key=$value";
             }
         }
 

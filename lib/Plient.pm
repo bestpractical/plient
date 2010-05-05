@@ -24,6 +24,46 @@ sub plient {
     # http://localhost:5000 => http://localhost:5000/
     $uri .= '/' if $uri =~ m{^https?://[^/]+$};
 
+    # generate both body_hash and body_array to make handlers' life easier
+    if ( $args->{body} ) {
+        if ( ref $args->{body} eq 'HASH' ) {
+            $args->{body_hash}  = $args->{body};
+            $args->{body_array} = [];
+            for my $k ( keys %{ $args->{body} } ) {
+                if ( ref $args->{body}{$k} eq 'ARRAY' ) {
+                    push @{ $args->{body_array} }, $k, $_
+                      for @{ $args->{body}{$k} };
+                }
+                else {
+                    push @{ $args->{body_array} }, $k, $args->{body}{$k};
+                }
+            }
+        }
+        elsif ( ref $args->{body} eq 'ARRAY' ) {
+            $args->{body_array} = $args->{body};
+            $args->{body_hash}  = {};
+            for ( my $i = 0 ; $i < $#{ $args->{body} } ; $i += 2 ) {
+                my $key = $args->{body}[$i];
+                my $value =
+                  defined $args->{body}[ $i + 1 ]
+                  ? $args->{body}[ $i + 1 ]
+                  : '';
+                if ( exists $args->{body_hash}{$key} ) {
+                    if ( ref $args->{body_hash}{$key} eq 'ARRAY' ) {
+                        push @{ $args->{body_hash}{$key} }, $value;
+                    }
+                    else {
+                        $args->{body_hash}{$key} =
+                          [ $args->{body_hash}{$key}, $value ];
+                    }
+                }
+            }
+        }
+        else {
+            die 'invalid body args, should be either hashref or arrayref';
+        }
+    }
+
     my $sub = dispatch( $method, $uri, $args );
     if ( $sub ) {
         if ( $args->{output_file} ) {
@@ -40,6 +80,7 @@ sub plient {
         warn "failed to $method on $uri"; 
         return;
     }
+
 }
 
 sub _extract_protocol {
@@ -312,7 +353,7 @@ hashref, this will be sent as HTTP(S) headers. e.g.
 
 =item body
 
-hashref, this will be sent as HTTP(S) post data. e.g.
+hashref or arrayref, this will be sent as HTTP(S) post data. e.g.
   {
     title => 'foo',
     body    => 'bar',

@@ -63,38 +63,20 @@ sub init {
                 $post_opt = '-d';
             }
 
-            if ( $args->{body} ) {
-                my %kv = %{$args->{body}};
-                for my $k ( keys %kv ) {
-                    if ( defined $kv{$k} ) {
-                        if ( ref $kv{$k} ) {
-                            if ( ref $kv{$k} eq 'ARRAY' ) {
-                                for my $i ( @{ $kv{$k} } ) {
-                                    if ( ref $i eq 'HASH'
-                                        && $i->{file} )
-                                    {
-                                        # file upload
-                                        $data .= " $post_opt '$k=\@$i->{file}'";
-                                    }
-                                    else {
-                                        $data .= " $post_opt '$k=$i'";
-                                    }
-                                }
-                            }
-                            elsif ( ref $kv{$k} eq 'HASH' && $kv{$k}{file} ) {
-                                # file upload
-                                $data .= " $post_opt '$k=\@$kv{$k}{file}'";
-                            }
-                            else {
-                                warn "invalid body value of $k: $kv{$k}";
-                            }
-                        }
-                        else {
-                            $data .= " $post_opt $k='$kv{$k}'";
-                        }
+            if ( $args->{body_array} ) {
+                my $body = $args->{body_array};
+
+                for ( my $i = 0 ; $i < $#$body ; $i += 2 ) {
+                    my $key = $body->[$i];
+                    my $value =
+                      defined $body->[ $i + 1 ] ? $body->[ $i + 1 ] : '';
+                    if ( ref $value eq 'HASH' && $value->{file} ) {
+
+                        # file upload
+                        $data .= " $post_opt '$key=\@$value->{file}'";
                     }
                     else {
-                        $data .= " $post_opt '$k='";
+                        $data .= " $post_opt '$key=$value'";
                     }
                 }
             }
