@@ -1,10 +1,10 @@
 use strict;
 use warnings;
 
-use Test::More tests => 6;
+use Test::More tests => 4;
 
-use_ok('Plient');
-use_ok('Plient::Test');
+use Plient;
+use Plient::Test;
 
 my $url = start_http_server();
 SKIP: {
