@@ -20,6 +20,11 @@ sub support_method {
         return;
     }
 
+    if ( $ENV{http_proxy} && $ENV{http_proxy} =~ /@/ ) {
+        # HTTPLite doesn't support proxy auth
+        return;
+    }
+
     return $class->SUPER::support_method(@_);
 }
 
