@@ -9,7 +9,7 @@ Plient->import( 'plient', 'plient_support' );
 my %args;
 
 GetOptions( \%args, 'help|h', 'support=s', 'request|X=s', 'output|o=s',
-    'user|u=s' )
+    'data|d=s', 'form|F=s', 'user|u=s' )
   or die 'unknown option';
 
 my $USAGE =<<EOF;
@@ -19,6 +19,9 @@ EXAMPLES:
     plient http://cpan.org/                         # fetch http://cpan.org
     plient -o /tmp/cpan.html http://cpan.org/       # write to file
     plient -u user:password http://foo.org          # use basic auth
+    plient -d foo=bar -d bar=baz http://foo.org     # post with urlencoded
+    plient -F foo=bar -F bar=baz http://foo.org     # post with form-data
+    plient -F foo=@/tmp/bar.log  http://foo.org     # post with file upload
 EOF
 
 if ( $args{help} ) {
@@ -38,14 +41,38 @@ if ( !$ARGV[0] ) {
     exit;
 }
 
-my ( @uri ) = @ARGV;
+if ( $args{data} && $args{form} ) {
+    die "--data and --form can't be both set";
+}
+
 my $method = $args{'request'} || 'get';
+$method = 'post' if $args{form} || $args{data};
+
+my @body;
+if ( $args{form} ) {
+    for my $data ( ref $args{form} eq 'ARRAY' ? @{ $args{form} } : $args{form} )
+    {
+        push @body, map {
+            my ( $k, $v ) = split /=/, $_, 2;
+            $v =~ s/\^@// ? ( $k, { file => $v } ) : ( $k, $v )
+        } split /;/, $data;
+    }
+}
+elsif ( $args{data} ) {
+# can specify multiple times like -d foo=bar -d bar=baz
+    for my $data ( ref $args{data} eq 'ARRAY' ? @{ $args{data} } : $args{data} )
+    {
+        push @body, map { split /=/, $_, 2 } split /;/, $data;
+    }
+}
+
+my ( @uri ) = @ARGV;
 
 for my $uri (@uri) {
     $uri = 'http://' . $uri unless $uri =~ /^\w+:/;
-    my $u = $args{user};
-    my ( $user, $password ) = split /:/, $args{user}, 2;
+    my ( $user, $password );
     if ($user) {
+        ( $user, $password ) = split /:/, $args{user}, 2;
         while ( !defined $password ) {
             $password = prompt_password("password for $user:");
         }
@@ -58,6 +85,8 @@ for my $uri (@uri) {
                 output_file => $args{output},
                 user        => $user,
                 password    => $password,
+                $args{form} ? ( content_type => 'form-data' ) : (),
+                $method =~ /post/i ? ( body => \@body ) : (),
             }
         );
     }
@@ -67,6 +96,8 @@ for my $uri (@uri) {
             {
                 user     => $user,
                 password => $password,
+                $args{form} ? ( content_type => 'form-data' ) : (),
+                $method =~ /post/i ? ( body => \@body ) : (),
             }
         );
     }
