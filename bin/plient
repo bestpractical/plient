@@ -8,7 +8,7 @@ Plient->import( 'plient', 'plient_support' );
 
 my %args;
 
-GetOptions( \%args, 'help|h', 'support|s=s', 'request|X=s', 'output|o=s',
+GetOptions( \%args, 'help|h', 'support=s', 'request|X=s', 'output|o=s',
     'user|u=s' )
   or die 'unknown option';
 
@@ -16,7 +16,6 @@ my $USAGE =<<EOF;
 USAGE: plient URL [ ... ]
 EXAMPLES:
     plient --support http_get                       # check is support HTTP GET
-    plient -s http_get                              # ditto
     plient http://cpan.org/                         # fetch http://cpan.org
     plient -o /tmp/cpan.html http://cpan.org/       # write to file
     plient -u user:password http://foo.org          # use basic auth
