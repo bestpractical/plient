@@ -23,25 +23,25 @@ sub which {
     if ( !$path ) {
 
         # fallback to our way
+LINE:
         for my $dir ( path() ) {
             my $path = catfile( $dir, $name );
 
             # XXX  any other names need to try?
             my @try = grep { -x } ( $path, $path .= $bin_ext );
             for my $try (@try) {
-                return $path;
+                $path = $try;
+                last LINE;
             }
         }
     }
 
+    return unless $path;
     if ( $path =~ /\s/ && $path !~ /^$bin_quote/ ) {
         $path = $bin_quote . $path . $bin_quote;
     }
 
-    if ($path) {
-        return $cache{$path} = $path;
-    }
-    return;
+    return $cache{$name} = $path;
 }
 
 1;
