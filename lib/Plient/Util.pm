@@ -18,21 +18,16 @@ sub which {
     return $cache{$name} if $cache{$name};
 
     my $path;
-    eval '$path = `which $name`';
-    chomp $path;
-    if ( !$path ) {
 
-        # fallback to our way
-LINE:
-        for my $dir ( path() ) {
-            my $path = catfile( $dir, $name );
+  LINE:
+    for my $dir ( path() ) {
+        my $p = catfile( $dir, $name );
 
-            # XXX  any other names need to try?
-            my @try = grep { -x } ( $path, $path .= $bin_ext );
-            for my $try (@try) {
-                $path = $try;
-                last LINE;
-            }
+        # XXX  any other names need to try?
+        my @try = grep { -x } ( $p, $p . $bin_ext );
+        for my $try (@try) {
+            $path = $try;
+            last LINE;
         }
     }
 
