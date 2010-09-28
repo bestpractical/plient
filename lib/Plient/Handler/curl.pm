@@ -22,13 +22,19 @@ sub init {
     $inited = 1;
     $curl        = $ENV{PLIENT_CURL}        || which('curl');
     $curl_config = $ENV{PLIENT_CURL_CONFIG} || which('curl-config');
-    return unless $curl && $curl_config;
-    if ( my $out = `$curl_config --protocols` ) {
-        @protocol{ map { lc } split /\r?\n/, $out } = ();
+    return unless $curl;
+    if ($curl_config) {
+        if ( my $out = `$curl_config --protocols` ) {
+            @protocol{ map { lc } split /\r?\n/, $out } = ();
+        }
+        else {
+            warn $!;
+            return;
+        }
     }
     else {
-        warn $!;
-        return;
+        # by default, curl should support http
+        %protocol = ( http => undef );
     }
 
     if ( exists $protocol{http} ) {
