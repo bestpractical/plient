@@ -195,7 +195,7 @@ sub handlers {
                   : delete $map{"Plient::Handler::$_"}
               } @$preference;
         }
-        push @handlers, keys %map unless $ENV{PLIENT_HANDLER_PREFERENCE_ONLY};
+        push @handlers, keys %map unless $ENV{PLIENT_HANDLER_PREFERENCE_STRICT};
         return @handlers;
     }
     else {
@@ -380,6 +380,71 @@ e.g. the following 2 ways of 'GET' http://cpan.org are equivalent:
 
 currently $args is not used, we may use it later, e.g. to test if support 
 Digest Authentication.
+
+=head1 ENV FOR USERS
+
+=over 4
+
+=item PLIENT_CURL
+
+curl's path, if not specified, use the one `which curl` returns
+
+=item PLIENT_CURL_CONFIG
+
+curl-config's path, if not specified, use the one `which curl-config`
+returns
+
+=item PLIENT_WGET
+
+wget's path, if not specified, use the one `which wget` returns
+
+=item PLIENT_HANDLER_PREFERENCE
+
+preference of handlers, format is:
+
+PROTOCOL1:HANDLER1,HANDLER2;PROTOCOL2:HANDLER3,...  
+
+e.g.
+    http:HTTPLite,curl,wget;https:curl,wget
+
+default is equal to(not set in this env actually):
+
+    http:curl,wget,HTTPLite,LWP;https:curl,wget,LWP
+
+
+C<Plient> will try the listed one by one to get the first competent one to
+handle the ongoing request.
+but if none was found, it will try the other handlers not listed.
+
+=back
+
+=head1 ENV FOR DEVELOPERS
+
+=over 4
+
+=item PLIENT_HANDLER_PREFERENCE_STRICT
+
+C<Plient> will try other handlers that are not listed in 
+C<PLIENT_HANDLER_PREFERENCE> if all the listed ones can't handle
+the ongoing request.
+
+if this is true, C<Plient> won't try in this situation, instead,
+it will die directly.
+
+used in C<Plient>'s tests.
+
+=item PLIENT_TEST_PLACKUP_WAIT
+
+seconds we wait after starting plackup in tests. by default it's 1 second.
+it can be decimal, e.g. 0.3
+
+this waiting time is to make sure plack is really started.
+
+=item PLIENT_BUNDLE_MODE
+
+used in plient-make-bundle only, end users shouldn't touch this.
+
+=back
 
 =head1 DEPENDENCIES
 

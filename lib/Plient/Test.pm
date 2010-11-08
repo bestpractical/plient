@@ -22,7 +22,7 @@ sub start_http_server {
     if ( defined $pid ) {
         if ($pid) {
             # have you ever been annoied that "sleep 1" is too much?
-            usleep 1_000_000 * ( $ENV{PLIENT_TEST_PLACKUP_TIME} || 1 );
+            usleep 1_000_000 * ( $ENV{PLIENT_TEST_PLACKUP_WAIT} || 1 );
             push @pids, $pid;
             return "http://localhost:$port";
         }
