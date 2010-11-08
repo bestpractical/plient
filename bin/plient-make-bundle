@@ -16,12 +16,19 @@ EXAMPLES:
     plient-make-bundle /tmp/plient-bundle.pl
 EOF
 
-if ( $args{help} || !$ARGV[0] ) {
+if ( $args{help} ) {
     print $USAGE;
     exit;
 }
 
-open my $fh, '>', $ARGV[0] or die $!;
+my $fh;
+if ( $ARGV[0] ) {
+    open my $fh, '>', $ARGV[0] or die $!;
+}
+else {
+    $fh = *STDOUT;
+}
+
 print $fh '#! /usr/bin/env perl', "\n";
 print $fh '$ENV{PLIENT_BUNDLE_MODE} = 1;', "\n";
 
