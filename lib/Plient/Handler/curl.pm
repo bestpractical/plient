@@ -138,7 +138,7 @@ sub translate_auth {
     my $args = shift || {};
     my $auth = '';
     if ( $args->{user} && defined $args->{password} ) {
-        my $method = lc $args->{auth_method} || 'basic';
+        my $method = lc( $args->{auth_method} || 'basic' );
         if ( $method eq 'basic' ) {
             $auth = " -u '$args->{user}:$args->{password}'";
         }
@@ -150,6 +150,7 @@ sub translate_auth {
 }
 
 __PACKAGE__->_add_to_plient if $Plient::bundle_mode;
+
 1;
 
 __END__
