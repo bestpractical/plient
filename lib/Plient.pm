@@ -97,7 +97,7 @@ sub _extract_protocol {
         return 'file';
     }
     else {
-        warn "unsupported $uri";
+        warn "unsupported uri: $uri";
         return;
     }
 }
@@ -119,7 +119,7 @@ sub _dispatch_protocol {
         return 'Plient::Protocol::HTTPS';
     }
     else {
-        warn "unsupported protocol";
+        warn "unsupported protocol: $protocol";
         return;
     }
 }
@@ -147,7 +147,7 @@ sub dispatch {
         return sub { $sub->( $uri, $args ) };
     }
     else {
-        warn "unsupported $method";
+        warn "unsupported method: $method";
         return;
     }
 }
