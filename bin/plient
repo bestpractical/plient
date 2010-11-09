@@ -5,6 +5,8 @@ use Getopt::Long;
 require Plient unless $ENV{PLIENT_BUNDLE_MODE};
 require Plient::Util unless $ENV{PLIENT_BUNDLE_MODE};
 Plient->import( 'plient', 'plient_support' );
+use Term::ReadLine;
+use Text::ParseWords;
 
 my %args;
 
@@ -24,82 +26,120 @@ EXAMPLES:
     plient -F foo=@/tmp/bar.log  http://foo.org     # post with file upload
 EOF
 
-if ( $args{help} ) {
-    print $USAGE;
-    exit;
-}
-
 if ( $args{support} ) {
-    my ( $protocol, $method ) = split /_/, $args{support}, 2;
-    print plient_support( $protocol, $method ) ? 'yes' : 'no';
-    print "\n";
+    support( $args{support} );
     exit;
 }
 
-if ( !$ARGV[0] ) {
-    print $USAGE;
-    exit;
-}
+my $prompt = 'plient> ';
+my %actions = (
+    shell    => \&shell,
+    support  => \&support,
+    supports => \&support,
+    help     => \&help,
+);
 
-if ( $args{data} && $args{form} ) {
-    die "--data and --form can't be both set";
-}
+sub handler {
 
-my $method = $args{'request'} || 'get';
-$method = 'post' if $args{form} || $args{data};
-
-my @body;
-if ( $args{form} ) {
-    for my $data ( ref $args{form} eq 'ARRAY' ? @{ $args{form} } : $args{form} )
-    {
-        push @body, map {
-            my ( $k, $v ) = split /=/, $_, 2;
-            $v =~ s/\^@// ? ( $k, { file => $v } ) : ( $k, $v )
-        } split /;/, $data;
-    }
-}
-elsif ( $args{data} ) {
-# can specify multiple times like -d foo=bar -d bar=baz
-    for my $data ( ref $args{data} eq 'ARRAY' ? @{ $args{data} } : $args{data} )
-    {
-        push @body, map { split /=/, $_, 2 } split /;/, $data;
-    }
-}
-
-my ( @uri ) = @ARGV;
-
-for my $uri (@uri) {
-    $uri = 'http://' . $uri unless $uri =~ /^\w+:/;
-    my ( $user, $password );
-    if ($user) {
-        ( $user, $password ) = split /:/, $args{user}, 2;
-        while ( !defined $password ) {
-            $password = prompt_password("password for $user:");
+    push @ARGV, 'shell' unless @ARGV;    # default to interactive mode
+    shift @ARGV if ( $ARGV[0] eq 'plient' );    # ignore a leading 'rt'
+    if ( @ARGV ) {
+        if ( exists $actions{ lc $ARGV[0] } ) {
+            $actions{ lc shift @ARGV }->();
+            return 0;
+        }
+        else {
+            handle();
+            return 0;
         }
     }
-
-    if ( $args{output} ) {
-        plient(
-            $method, $uri,
-            {
-                output_file => $args{output},
-                user        => $user,
-                password    => $password,
-                $args{form} ? ( content_type => 'form-data' ) : (),
-                $method =~ /post/i ? ( body => \@body ) : (),
-            }
-        );
-    }
     else {
-        print plient(
-            $method, $uri,
-            {
-                user     => $user,
-                password => $password,
-                $args{form} ? ( content_type => 'form-data' ) : (),
-                $method =~ /post/i ? ( body => \@body ) : (),
+        print STDERR "plient: unknown command '@ARGV'.\n";
+        print STDERR "plient: For help, run 'plient help'.\n";
+        return 1;
+    }
+
+}
+
+exit handler();
+
+sub shell {
+    $| = 1;
+    my $term = Term::ReadLine->new( 'Plient' );
+    # I really don't like the underscores in the prompt
+    $term->ornaments(0);
+    while ( defined( $_ = $term->readline($prompt) ) ) {
+        next if /^#/ || /^\s*$/;
+        @ARGV = shellwords($_);
+        handler();
+    }
+}
+
+
+sub handle {
+
+    if ( $args{data} && $args{form} ) {
+        die "--data and --form can't be both set";
+    }
+
+    my $method = $args{'request'} || 'get';
+    $method = 'post' if $args{form} || $args{data};
+
+    my @body;
+    if ( $args{form} ) {
+        for my $data (
+            ref $args{form} eq 'ARRAY' ? @{ $args{form} } : $args{form} )
+        {
+            push @body, map {
+                my ( $k, $v ) = split /=/, $_, 2;
+                $v =~ s/\^@// ? ( $k, { file => $v } ) : ( $k, $v )
+            } split /;/, $data;
+        }
+    }
+    elsif ( $args{data} ) {
+
+        # can specify multiple times like -d foo=bar -d bar=baz
+        for my $data (
+            ref $args{data} eq 'ARRAY' ? @{ $args{data} } : $args{data} )
+        {
+            push @body, map { split /=/, $_, 2 } split /;/, $data;
+        }
+    }
+    my (@uri) = @ARGV;
+
+    for my $uri (@uri) {
+        $uri = 'http://' . $uri unless $uri =~ /^\w+:/;
+        my ( $user, $password );
+        if ($args{user}) {
+            ( $user, $password ) = split /:/, $args{user}, 2;
+            while ( !defined $password ) {
+                $password = prompt_password("password for $user:");
             }
-        );
+        }
+
+        if ( $args{output} ) {
+            plient(
+                $method, $uri,
+                {
+                    output_file => $args{output},
+                    user        => $user,
+                    password    => $password,
+                    $args{form} ? ( content_type => 'form-data' ) : (),
+                    $method =~ /post/i ? ( body => \@body ) : (),
+                }
+            );
+        }
+        else {
+            print plient(
+                $method, $uri,
+                {
+                    user     => $user,
+                    password => $password,
+                    $args{form} ? ( content_type => 'form-data' ) : (),
+                    $method =~ /post/i ? ( body => \@body ) : (),
+                }
+            );
+        }
     }
 }
 
@@ -131,3 +171,13 @@ sub prompt_password {
     return $password;
 }
 
+sub support {
+    my $value = shift;
+    my ( $protocol, $method ) = split /_/, $value || $ARGV[0];
+    print plient_support( $protocol, $method ) ? 'yes' : 'no';
+    print "\n";
+}
+
+sub help {
+    print $USAGE;
+}
