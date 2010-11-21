@@ -385,6 +385,10 @@ Digest Authentication.
 
 =over 4
 
+=item PLIENT_DEBUG
+
+show more debug info if this it true.
+
 =item PLIENT_CURL
 
 curl's path, if not specified, use the one `which curl` returns
