@@ -43,7 +43,7 @@ sub init {
             my $headers = translate_headers( $args );
             my $auth    = translate_auth($args);
             warn "$curl -k -s -L $headers $auth $uri\n" if $ENV{PLIENT_DEBUG};
-            if ( open my $fh, "$curl -k -s -L $headers $auth $uri |" ) {
+            if ( open my $fh, "$curl -k -s -L $headers $auth '$uri' |" ) {
                 local $/;
                 <$fh>;
             }
@@ -89,7 +89,7 @@ sub init {
             }
 
             warn "$curl -s -L $data $headers $auth $uri\n" if $ENV{PLIENT_DEBUG};
-            if ( open my $fh, "$curl -s -L $data $headers $auth $uri |" ) {
+            if ( open my $fh, "$curl -s -L $data $headers $auth '$uri' |" ) {
                 local $/;
                 <$fh>;
             }
@@ -103,7 +103,7 @@ sub init {
             my $headers = translate_headers( $args );
             my $auth    = translate_auth($args);
             warn "$curl -s -I -L $headers $auth $uri\n" if $ENV{PLIENT_DEBUG};
-            if ( open my $fh, "$curl -s -I -L $headers $auth $uri |" ) {
+            if ( open my $fh, "$curl -s -I -L $headers $auth '$uri' |" ) {
                 local $/;
                 my $head = <$fh>;
                 $head =~ s/\r\n$//;

@@ -51,7 +51,7 @@ sub init {
         my ( $uri, $args ) = @_;
         my $headers = translate_headers( $args );
         my $auth    = translate_auth($args);
-        if ( open my $fh, "$wget -q -O - $headers $auth $uri |" ) {
+        if ( open my $fh, "$wget -q -O - $headers $auth '$uri' |" ) {
             local $/;
             <$fh>;
         }
@@ -77,7 +77,7 @@ sub init {
             }
         }
 
-        if ( open my $fh, "$wget -q -O - $data $headers $auth $uri |" ) {
+        if ( open my $fh, "$wget -q -O - $data $headers $auth '$uri' |" ) {
             local $/;
             <$fh>;
         }
@@ -92,7 +92,7 @@ sub init {
         # we can't use -q here, or some version may not show the header
         my $headers = translate_headers( $args );
         my $auth    = translate_auth($args);
-        if ( open my $fh, "$wget -S --spider $headers $auth $uri 2>&1 |" ) {
+        if ( open my $fh, "$wget -S --spider $headers $auth '$uri' 2>&1 |" ) {
             my $head = '';
             my $flag;
             while ( my $line = <$fh>) {
