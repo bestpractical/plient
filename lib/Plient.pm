@@ -227,8 +227,8 @@ sub find_handlers {
 }
 
 my %handler_preference = (
-    http  => [qw/curl wget HTTPLite LWP/],
-    https => [qw/curl wget LWP/],
+    http  => [qw/curl wget HTTPTiny HTTPLite LWP/],
+    https => [qw/curl wget HTTPTiny LWP/],
 );
 if ( my $env = $ENV{PLIENT_HANDLER_PREFERENCE} ) {
     my %entry = map { split /:/, $_, 2 } split /;/, $env;
