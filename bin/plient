@@ -17,7 +17,7 @@ GetOptions( \%args, 'help|h', 'support=s', 'request|X=s', 'output|o=s',
 my $USAGE =<<EOF;
 USAGE: plient URL [ ... ]
 EXAMPLES:
-    plient --support http_get                       # check is support HTTP GET
+    plient --support http_get                       # check if support HTTP GET
     plient http://cpan.org/                         # fetch http://cpan.org
     plient -o /tmp/cpan.html http://cpan.org/       # write to file
     plient -u user:password http://foo.org          # use basic auth
