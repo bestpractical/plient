@@ -3,7 +3,7 @@ package Plient;
 use warnings;
 use strict;
 use Carp;
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 use File::Spec::Functions;
 use base 'Exporter';
 our @EXPORT = 'plient';
