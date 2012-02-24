@@ -2,6 +2,10 @@ Revision history for Plient
 
 {{$NEXT}}
 
+    updated tests so we can test each handle individually
+    fixed support_method of wget, HTTPLite and HTTPTiny
+    fixed http_post for HTTPTiny
+
 0.02   2011-11-22 11:08:09 CST
 
     test number fix
