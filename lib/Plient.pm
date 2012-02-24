@@ -171,7 +171,7 @@ sub _add_handlers {
             $all_handlers{$handler} = ();
         }
         else {
-            warn "$handler doesn't look like a Plient handler";
+            warn "$handler is not a valid Plient handler";
         }
     }
 
