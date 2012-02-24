@@ -12,7 +12,8 @@ sub protocol { return \%protocol }
 sub method { return \%method }
 
 sub support_method {
-    my ( $class, $method, $args ) = @_;
+    my $class = shift;
+    my ( $method, $args ) = @_;
     if (   $args
         && $args->{content_type}
         && $args->{content_type} =~ 'form-data' )
