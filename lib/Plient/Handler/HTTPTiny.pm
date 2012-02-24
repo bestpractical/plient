@@ -58,12 +58,29 @@ sub init {
         my $http = HTTP::Tiny->new;
         $http->proxy( $ENV{http_proxy} ) if $ENV{http_proxy};
         add_headers( $http, $uri, $args );
-        add_body( $http, $args->{body_hash} ) if $args->{body_hash};
+
+        my $body;
+        if ( $args->{body_hash} ) {
+            for my $key ( keys %{$args->{body_hash}} ) {
+                # TODO uri escape key and value
+                my $val = $args->{body_hash}{$key};
+                $body .= $body ? "&$key=$val" : "$key=$val";
+            }
+        }
+
         $http->{default_headers}{'Content-Type'} =
           'application/x-www-form-urlencoded'
           unless $http->{default_headers}{'Content-Type'};
 
-        my $res = $http->request( 'POST', $uri );
+        my $res = $http->request(
+            'POST', $uri,
+            {
+                defined $body
+                ? ( content => $body )
+                : ()
+            }
+        );
+
         if ( $res->{success} ) {
             return $res->{content};
         }
@@ -95,20 +112,6 @@ sub add_headers {
             die "aborting: unsupported auth method: $method";
         }
     }
-}
-
-sub add_body {
-    my $http = shift;
-    my $hash = shift;
-
-    my $body = '';
-    for my $key ( keys %$hash ) {
-
-        # TODO uri escape key and value
-        my $val = $hash->{$key};
-        $body .= $body ? "&$key=$val" : "$key=$val";
-    }
-    $http->{content} = $body;
 }
 
 __PACKAGE__->_add_to_plient if $Plient::bundle_mode;
